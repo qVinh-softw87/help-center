@@ -1,9 +1,25 @@
 version: "3.8"
 
 services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: catapos-help-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: catapos_help_center
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
   catapos-help:
     image: catapos-help
     container_name: catapos-help
     restart: unless-stopped
     ports:
       - "8082:80"
+
+volumes:
+  postgres_data:

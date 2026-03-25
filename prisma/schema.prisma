@@ -1,0 +1,107 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum HelpArticleType {
+  USER_MANUAL
+  BUSINESS_PLAYBOOK
+  CHANGELOG
+  API_DOCS
+}
+
+enum HelpArticleStatus {
+  DRAFT
+  REVIEW
+  PUBLISHED
+  ARCHIVED
+}
+
+enum HelpFeedbackType {
+  HELPFUL
+  NOT_HELPFUL
+}
+
+enum UserRole {
+  ADMIN
+  STAFF
+}
+
+model Category {
+  id          Int       @id @default(autoincrement())
+  name        String
+  slug        String
+  description String    @default("")
+  iconUrl     String?
+  sortOrder   Int       @default(0)
+  articleCount Int      @default(0)
+  languageCode String   @default("vi")
+  articles    Article[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@unique([slug, languageCode])
+  @@index([languageCode, sortOrder])
+}
+
+model Article {
+  id               Int               @id @default(autoincrement())
+  categoryId       Int
+  type             HelpArticleType
+  status           HelpArticleStatus @default(PUBLISHED)
+  title            String
+  slug             String
+  summary          String            @default("")
+  content          String            @default("")
+  contentType      String            @default("markdown")
+  featuredImageUrl String?
+  tags             String[]
+  requiredPackage  String?
+  requiredPackages String[]
+  contextPaths     String[]
+  viewCount        Int               @default(0)
+  helpfulCount     Int               @default(0)
+  notHelpfulCount  Int               @default(0)
+  isFeatured       Boolean           @default(false)
+  isPinned         Boolean           @default(false)
+  publishedAt      DateTime?
+  languageCode     String            @default("vi")
+  metadata         Json?
+  category         Category          @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  feedbacks        Feedback[]
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+
+  @@unique([slug, languageCode])
+  @@index([categoryId, languageCode, publishedAt])
+  @@index([languageCode, type])
+}
+
+model Feedback {
+  id        Int              @id @default(autoincrement())
+  articleId Int
+  userId    Int?
+  type      HelpFeedbackType
+  comment   String           @default("")
+  article   Article          @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  user      User?            @relation(fields: [userId], references: [id], onDelete: SetNull)
+  createdAt DateTime         @default(now())
+
+  @@index([articleId, createdAt])
+  @@index([userId])
+}
+
+model User {
+  id        Int        @id @default(autoincrement())
+  email     String     @unique
+  password  String
+  name      String
+  role      UserRole   @default(STAFF)
+  feedbacks Feedback[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
