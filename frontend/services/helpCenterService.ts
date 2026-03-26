@@ -7,7 +7,10 @@ import {
   EHelpArticleType
 } from '../types';
 
-const BASE_URL = 'http://localhost:8000/api/help-center';
+const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8000').replace(/\/$/, '');
+const BASE_URL = `${API_BASE_URL}/api/help-center`;
+
+const isNetworkError = (error: unknown) => error instanceof TypeError;
 
 // Helper to construct headers with Authentication token
 const getHeaders = () => {
@@ -209,15 +212,26 @@ export const helpCenterService = {
         headers: getHeaders(),
         body: JSON.stringify({ type, comment })
       });
-      if (!res.ok) throw new Error(res.statusText);
+      if (!res.ok) {
+        if (res.status === 401) {
+          throw new Error('Vui long dang nhap de gui feedback.');
+        }
+
+        throw new Error(`Gui feedback that bai (${res.status})`);
+      }
+
       const json = await res.json();
       return json.data;
     } catch (error) {
+      if (!isNetworkError(error)) {
+        throw error;
+      }
+
       console.warn("API unavailable, falling back to mock data:", error);
       return {
         id: Math.floor(Math.random() * 1000),
         articleId,
-        userId: 1,
+        userId: null,
         type,
         comment: comment || '',
         createdAt: new Date().toISOString()

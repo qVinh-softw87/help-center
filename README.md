@@ -8,7 +8,7 @@ Repo nay gom:
 
 - frontend Vite/React cho Help Center
 - backend NestJS + Prisma cho cac API help center
-- PostgreSQL de chay local
+- PostgreSQL cho du lieu
 
 ## Kien truc chinh
 
@@ -41,7 +41,6 @@ Repo nay gom:
 |   `-- seed.ts
 |-- index.html
 |-- vite.config.ts
-|-- docker-compose.yml
 `-- package.json
 ```
 
@@ -72,19 +71,28 @@ Format nay khop voi frontend hien tai trong `frontend/services/helpCenterService
 npm install
 ```
 
-### 2. Chay PostgreSQL
-
-```bash
-docker compose up -d postgres
-```
-
-### 3. Tao env
+### 2. Tao env
 
 ```bash
 cp .env.example .env
 ```
 
-### 4. Generate Prisma Client va migrate
+Cap nhat `DATABASE_URL` trong `.env` theo PostgreSQL local cua ban.
+
+Vi du:
+
+```bash
+DATABASE_URL="postgresql://postgres:postgres@localhost:5432/catapos_help_center?schema=public"
+JWT_SECRET="replace-with-a-secure-secret"
+PORT="8000"
+VITE_API_BASE_URL="http://localhost:8000"
+```
+
+### 3. Tao database PostgreSQL
+
+Tao database `catapos_help_center` bang cach ban dang dung tren may, vi du qua `psql`, pgAdmin, TablePlus hoac mot Postgres local co san.
+
+### 4. Generate Prisma Client va chay migration
 
 ```bash
 npm run prisma:generate
@@ -111,7 +119,7 @@ Backend se chay tai `http://localhost:8000`.
 npm run dev:frontend
 ```
 
-Frontend se chay tai `http://localhost:3000` va goi API den backend local.
+Frontend se chay tai `http://localhost:3000` va goi API den backend qua `VITE_API_BASE_URL`.
 
 ## Nhung phan quan trong de hoc
 
@@ -124,7 +132,6 @@ Frontend se chay tai `http://localhost:3000` va goi API den backend local.
 ## Nhung gi repo nay da bo sung de hoan chinh hon
 
 - Prisma schema cho `Category`, `Article`, `Feedback`
-- Postgres local bang Docker Compose
 - seed du lieu mau
 - scripts backend/prisma trong `package.json`
 - backend tsconfig rieng

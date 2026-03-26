@@ -1,4 +1,4 @@
-  import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import {
   FeedbackDto,
@@ -26,6 +26,23 @@ export class HelpCenterService {
     private readonly mapper: HelpCenterMapper,
   ) {}
 
+  private buildContextPathVariants(contextPath: string): string[] {
+    const sanitizedPath = contextPath.trim().replace(/\/+$/, '');
+
+    if (!sanitizedPath || sanitizedPath === '/') {
+      return ['/'];
+    }
+
+    const segments = sanitizedPath.split('/').filter(Boolean);
+    const variants: string[] = [];
+
+    for (let index = 1; index <= segments.length; index += 1) {
+      variants.push(`/${segments.slice(0, index).join('/')}`);
+    }
+
+    return variants;
+  }
+
   async getCategories(
     query: GetCategoriesDto,
   ): Promise<HelpCenterCategoryResponse[]> {
@@ -42,6 +59,10 @@ export class HelpCenterService {
   }
 
   async getArticles(query: GetArticlesDto): Promise<HelpCenterArticleListResponse> {
+    const contextPathVariants = query.contextPath
+      ? this.buildContextPathVariants(query.contextPath)
+      : [];
+
     const where = {
       languageCode: query.languageCode,
       ...(query.categoryId ? { categoryId: query.categoryId } : {}),
@@ -57,7 +78,7 @@ export class HelpCenterService {
       ...(query.contextPath
         ? {
             contextPaths: {
-              has: query.contextPath,
+              hasSome: contextPathVariants,
             },
           }
         : {}),
@@ -119,7 +140,7 @@ export class HelpCenterService {
       relatedArticles: relatedArticles.map((item) =>
         this.mapper.toArticleSummaryResponse(item),
       ),
-      hasAccess: true,
+      hasAccess: !article.requiredPackage,
     };
   }
 
@@ -144,11 +165,13 @@ export class HelpCenterService {
   }
 
   async getContextualHelp(query: GetContextualHelpDto) {
+    const contextPathVariants = this.buildContextPathVariants(query.contextPath);
+
     const articles = await this.prisma.article.findMany({
       where: {
         languageCode: query.languageCode,
         contextPaths: {
-          has: query.contextPath,
+          hasSome: contextPathVariants,
         },
       },
       orderBy: [{ isPinned: 'desc' }, { publishedAt: 'desc' }],

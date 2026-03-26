@@ -5,13 +5,6 @@ export enum EHelpArticleType {
   API_DOCS = 'API_DOCS'
 }
 
-export enum EHelpArticleStatus {
-  DRAFT = 'DRAFT',
-  REVIEW = 'REVIEW',
-  PUBLISHED = 'PUBLISHED',
-  ARCHIVED = 'ARCHIVED'
-}
-
 export enum EHelpFeedbackType {
   HELPFUL = 'HELPFUL',
   NOT_HELPFUL = 'NOT_HELPFUL'
@@ -45,7 +38,7 @@ export interface ArticleSummary {
   notHelpfulCount: number;
   isFeatured: boolean;
   isPinned: boolean;
-  publishedAt: string;
+  publishedAt: string | null;
   languageCode: string;
 }
 
@@ -69,21 +62,10 @@ export interface ArticleResponse {
   hasAccess: boolean;
 }
 
-export interface SearchResponse {
-  articles: ArticleSummary[];
-  total: number;
-  suggestions: string[];
-}
-
-export interface FeedbackRequest {
-  type: EHelpFeedbackType;
-  comment?: string;
-}
-
 export interface FeedbackResponse {
   id: number;
   articleId: number;
-  userId: number;
+  userId: number | null;
   type: EHelpFeedbackType;
   comment: string;
   createdAt: string;

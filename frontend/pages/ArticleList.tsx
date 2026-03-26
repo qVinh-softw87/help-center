@@ -17,6 +17,14 @@ export const ArticleList: React.FC<ArticleListProps> = ({ forcedType }) => {
   const [loading, setLoading] = useState(true);
   const [title, setTitle] = useState('');
 
+  const formatPublishedAt = (publishedAt: string | null) => {
+    if (!publishedAt) {
+      return 'Chua xuat ban';
+    }
+
+    return new Date(publishedAt).toLocaleDateString('vi-VN');
+  };
+
   useEffect(() => {
     setLoading(true);
     const fetchArticles = async () => {
@@ -108,7 +116,7 @@ export const ArticleList: React.FC<ArticleListProps> = ({ forcedType }) => {
               <div className="flex items-start justify-between mb-2">
                 <div className="flex items-center gap-2 mb-1">
                   {getTypeBadge(article.type)}
-                  <span className="text-xs text-slate-400">{new Date(article.publishedAt).toLocaleDateString('vi-VN')}</span>
+                  <span className="text-xs text-slate-400">{formatPublishedAt(article.publishedAt)}</span>
                 </div>
               </div>
 

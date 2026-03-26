@@ -11,14 +11,24 @@ async function main() {
 
   const defaultPasswordHash = await hash('123456', 10);
 
-  await prisma.user.create({
-    data: {
-      email: 'admin@example.com',
-      password: defaultPasswordHash,
-      name: 'Admin Demo',
-      role: UserRole.ADMIN,
-    },
-  });
+  const [adminUser, staffUser] = await prisma.$transaction([
+    prisma.user.create({
+      data: {
+        email: 'admin@example.com',
+        password: defaultPasswordHash,
+        name: 'Admin Demo',
+        role: UserRole.ADMIN,
+      },
+    }),
+    prisma.user.create({
+      data: {
+        email: 'staff@example.com',
+        password: defaultPasswordHash,
+        name: 'Staff Demo',
+        role: UserRole.STAFF,
+      },
+    }),
+  ]);
 
   const categories = await prisma.$transaction([
     prisma.category.create({
@@ -28,7 +38,7 @@ async function main() {
         description: 'Cac huong dan co ban cho nguoi moi bat dau',
         iconUrl: 'rocket',
         sortOrder: 1,
-        articleCount: 1,
+        articleCount: 2,
         languageCode: 'vi',
       },
     }),
@@ -39,7 +49,7 @@ async function main() {
         description: 'Quy trinh xu ly don hang va van chuyen',
         iconUrl: 'shopping-bag',
         sortOrder: 2,
-        articleCount: 1,
+        articleCount: 2,
         languageCode: 'vi',
       },
     }),
@@ -50,13 +60,24 @@ async function main() {
         description: 'Cau hinh may in, thue va nhan vien',
         iconUrl: 'settings',
         sortOrder: 3,
-        articleCount: 1,
+        articleCount: 3,
+        languageCode: 'vi',
+      },
+    }),
+    prisma.category.create({
+      data: {
+        name: 'Tai lieu ky thuat',
+        slug: 'api-docs',
+        description: 'Tai lieu API va tich hop ky thuat cho lap trinh vien',
+        iconUrl: 'code',
+        sortOrder: 4,
+        articleCount: 2,
         languageCode: 'vi',
       },
     }),
   ]);
 
-  await prisma.article.createMany({
+  const articles = await prisma.article.createManyAndReturn({
     data: [
       {
         categoryId: categories[2].id,
@@ -93,6 +114,60 @@ async function main() {
         },
       },
       {
+        categoryId: categories[2].id,
+        type: 'USER_MANUAL',
+        status: 'PUBLISHED',
+        title: 'Cau hinh thue VAT cho cua hang',
+        slug: 'cau-hinh-thue-vat-cho-cua-hang',
+        summary: 'Huong dan thiet lap thue, phi dich vu va mau hoa don.',
+        content: [
+          '# Cau hinh thue VAT cho cua hang',
+          '',
+          '## Muc tieu',
+          'Dam bao hoa don va bao cao su dung dung muc thue.',
+          '',
+          '## Cac buoc',
+          '1. Vao Cau hinh > Thue va phi.',
+          '2. Tao muc thue VAT 8% hoac 10%.',
+          '3. Gan muc thue cho nhom san pham tuong ung.',
+        ].join('\n'),
+        contentType: 'markdown',
+        tags: ['thue', 'vat', 'hoa don'],
+        contextPaths: ['/settings/tax'],
+        viewCount: 94,
+        helpfulCount: 18,
+        notHelpfulCount: 1,
+        isFeatured: false,
+        isPinned: false,
+        publishedAt: new Date('2025-01-18T09:00:00Z'),
+        languageCode: 'vi',
+      },
+      {
+        categoryId: categories[2].id,
+        type: 'CHANGELOG',
+        status: 'PUBLISHED',
+        title: 'Cap nhat bo loc bao cao theo ca lam viec',
+        slug: 'cap-nhat-bo-loc-bao-cao-theo-ca-lam-viec',
+        summary: 'Ban cap nhat bo sung bo loc bao cao theo ca va nhan vien.',
+        content: [
+          '# Cap nhat bo loc bao cao theo ca lam viec',
+          '',
+          '- Them bo loc theo ca lam viec.',
+          '- Them bo loc theo nhan vien.',
+          '- Cai thien toc do tai bao cao tong hop.',
+        ].join('\n'),
+        contentType: 'markdown',
+        tags: ['changelog', 'bao cao'],
+        contextPaths: ['/reports'],
+        viewCount: 55,
+        helpfulCount: 9,
+        notHelpfulCount: 0,
+        isFeatured: false,
+        isPinned: true,
+        publishedAt: new Date('2025-01-22T04:00:00Z'),
+        languageCode: 'vi',
+      },
+      {
         categoryId: categories[1].id,
         type: 'BUSINESS_PLAYBOOK',
         status: 'PUBLISHED',
@@ -115,6 +190,31 @@ async function main() {
         languageCode: 'vi',
       },
       {
+        categoryId: categories[1].id,
+        type: 'USER_MANUAL',
+        status: 'PUBLISHED',
+        title: 'Cach theo doi don giao that bai',
+        slug: 'cach-theo-doi-don-giao-that-bai',
+        summary: 'Huong dan loc don giao that bai va tao lich su cham soc khach hang.',
+        content: [
+          '# Cach theo doi don giao that bai',
+          '',
+          '1. Vao Don hang > Van chuyen.',
+          '2. Loc theo trang thai giao that bai.',
+          '3. Tiep tuc tao ghi chu va hen lich goi lai cho khach.',
+        ].join('\n'),
+        contentType: 'markdown',
+        tags: ['giao hang', 'van chuyen', 'don hang'],
+        contextPaths: ['/orders/shipping'],
+        viewCount: 77,
+        helpfulCount: 14,
+        notHelpfulCount: 2,
+        isFeatured: false,
+        isPinned: false,
+        publishedAt: new Date('2025-01-17T07:00:00Z'),
+        languageCode: 'vi',
+      },
+      {
         categoryId: categories[0].id,
         type: 'USER_MANUAL',
         status: 'PUBLISHED',
@@ -133,8 +233,121 @@ async function main() {
         publishedAt: new Date('2025-01-10T09:30:00Z'),
         languageCode: 'vi',
       },
+      {
+        categoryId: categories[0].id,
+        type: 'USER_MANUAL',
+        status: 'PUBLISHED',
+        title: 'Lam quen giao dien quan tri',
+        slug: 'lam-quen-giao-dien-quan-tri',
+        summary: 'Gioi thieu nhanh cac khu vuc chinh trong dashboard va menu.',
+        content: [
+          '# Lam quen giao dien quan tri',
+          '',
+          '- Tong quan doanh thu',
+          '- Don hang gan day',
+          '- Khu vuc cau hinh nhanh',
+          '- Thanh tim kiem va thong bao',
+        ].join('\n'),
+        contentType: 'markdown',
+        tags: ['dashboard', 'bat dau'],
+        contextPaths: ['/dashboard'],
+        viewCount: 180,
+        helpfulCount: 31,
+        notHelpfulCount: 1,
+        isFeatured: true,
+        isPinned: false,
+        publishedAt: new Date('2025-01-08T06:30:00Z'),
+        languageCode: 'vi',
+      },
+      {
+        categoryId: categories[3].id,
+        type: 'API_DOCS',
+        status: 'PUBLISHED',
+        title: 'Huong dan xac thuc API bang Bearer token',
+        slug: 'huong-dan-xac-thuc-api-bang-bearer-token',
+        summary: 'Mo ta cach dang nhap, lay access token va gui header Authorization.',
+        content: [
+          '# Huong dan xac thuc API bang Bearer token',
+          '',
+          '## Dang nhap',
+          'POST /api/auth/login',
+          '',
+          '## Header can gui',
+          'Authorization: Bearer <access_token>',
+        ].join('\n'),
+        contentType: 'markdown',
+        tags: ['api', 'auth', 'jwt'],
+        contextPaths: ['/developers/auth'],
+        viewCount: 133,
+        helpfulCount: 26,
+        notHelpfulCount: 1,
+        isFeatured: true,
+        isPinned: true,
+        publishedAt: new Date('2025-01-20T10:00:00Z'),
+        languageCode: 'vi',
+      },
+      {
+        categoryId: categories[3].id,
+        type: 'API_DOCS',
+        status: 'PUBLISHED',
+        title: 'Tai lieu endpoint lay danh sach bai viet',
+        slug: 'tai-lieu-endpoint-lay-danh-sach-bai-viet',
+        summary: 'Mo ta query params, phan trang va bo loc cho API danh sach bai viet.',
+        content: [
+          '# Tai lieu endpoint lay danh sach bai viet',
+          '',
+          'GET /api/help-center/articles',
+          '',
+          '## Query params',
+          '- page',
+          '- limit',
+          '- categoryId',
+          '- type',
+          '- searchQuery',
+        ].join('\n'),
+        contentType: 'markdown',
+        tags: ['api', 'articles', 'pagination'],
+        contextPaths: ['/developers/help-center'],
+        viewCount: 98,
+        helpfulCount: 17,
+        notHelpfulCount: 0,
+        isFeatured: false,
+        isPinned: false,
+        publishedAt: new Date('2025-01-21T11:00:00Z'),
+        languageCode: 'vi',
+      },
     ],
   });
+
+  await prisma.feedback.createMany({
+    data: [
+      {
+        articleId: articles[0].id,
+        userId: adminUser.id,
+        type: 'HELPFUL',
+        comment: 'Noi dung ro rang, de thao tac.',
+      },
+      {
+        articleId: articles[0].id,
+        userId: staffUser.id,
+        type: 'NOT_HELPFUL',
+        comment: 'Can them hinh anh minh hoa.',
+      },
+      {
+        articleId: articles[6].id,
+        userId: adminUser.id,
+        type: 'HELPFUL',
+        comment: 'Tai lieu auth de doc va test.',
+      },
+    ],
+  });
+
+  console.log('Seed completed successfully.');
+  console.log('Users:');
+  console.log('- admin@example.com / 123456');
+  console.log('- staff@example.com / 123456');
+  console.log(`Categories: ${categories.length}`);
+  console.log(`Articles: ${articles.length}`);
 }
 
 main()

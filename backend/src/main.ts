@@ -8,6 +8,7 @@ import { ResponseInterceptor } from './common/interceptors/response.interceptor'
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  const port = Number(process.env.PORT ?? 8000);
 
   app.setGlobalPrefix('api');
   app.enableShutdownHooks();
@@ -36,7 +37,7 @@ async function bootstrap() {
     },
   });
 
-  await app.listen(8000);
+  await app.listen(port, '0.0.0.0');
 }
 
 bootstrap();

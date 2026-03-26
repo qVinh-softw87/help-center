@@ -7,6 +7,7 @@
     "dev": "vite",
     "dev:frontend": "vite",
     "dev:backend": "tsx watch --tsconfig backend/tsconfig.backend.json backend/src/main.ts",
+    "start:backend": "tsx --tsconfig backend/tsconfig.backend.json backend/src/main.ts",
     "build": "vite build",
     "build:frontend": "vite build",
     "preview": "vite preview",
@@ -40,8 +41,5 @@
     "tsx": "^4.19.3",
     "typescript": "~5.8.2",
     "vite": "^6.2.0"
-  },
-  "prisma": {
-    "seed": "tsx --tsconfig backend/tsconfig.backend.json prisma/seed.ts"
   }
 }

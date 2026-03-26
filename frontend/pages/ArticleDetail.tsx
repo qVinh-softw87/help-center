@@ -72,6 +72,7 @@ export const ArticleDetail: React.FC = () => {
   const [data, setData] = useState<{ article: IArticleDetail, hasAccess: boolean, relatedArticles: any[] } | null>(null);
   const [loading, setLoading] = useState(true);
   const [feedbackSent, setFeedbackSent] = useState(false);
+  const [feedbackError, setFeedbackError] = useState<string | null>(null);
 
   useEffect(() => {
     if (slug) {
@@ -85,8 +86,15 @@ export const ArticleDetail: React.FC = () => {
 
   const handleFeedback = async (type: EHelpFeedbackType) => {
     if (data && !feedbackSent) {
-      await helpCenterService.sendFeedback(data.article.id, type);
-      setFeedbackSent(true);
+      try {
+        setFeedbackError(null);
+        await helpCenterService.sendFeedback(data.article.id, type);
+        setFeedbackSent(true);
+      } catch (error) {
+        setFeedbackError(
+          error instanceof Error ? error.message : 'Khong the gui feedback luc nay.',
+        );
+      }
     }
   };
 
@@ -103,6 +111,10 @@ export const ArticleDetail: React.FC = () => {
   if (!data) return <div className="p-12 text-center">Không tìm thấy bài viết</div>;
 
   const { article, hasAccess, relatedArticles } = data;
+
+  const publishedAtText = article.publishedAt
+    ? new Date(article.publishedAt).toLocaleDateString('vi-VN')
+    : 'Chua xuat ban';
 
   return (
     <div className="bg-white min-h-screen pb-12">
@@ -122,7 +134,7 @@ export const ArticleDetail: React.FC = () => {
             <div className="flex items-center gap-6 text-sm text-slate-500">
                <div className="flex items-center gap-2">
                  <div className="w-6 h-6 rounded-full bg-brand-100 text-brand-600 flex items-center justify-center font-bold text-xs">A</div>
-                 <span>Cập nhật: {new Date(article.publishedAt).toLocaleDateString('vi-VN')}</span>
+                 <span>Cập nhật: {publishedAtText}</span>
                </div>
                {article.requiredPackage && (
                  <span className="flex items-center gap-1 text-orange-600 font-medium bg-orange-50 px-2 py-0.5 rounded">
@@ -189,6 +201,9 @@ export const ArticleDetail: React.FC = () => {
                   </div>
                 )}
               </div>
+              {feedbackError && (
+                <p className="text-sm text-red-600">{feedbackError}</p>
+              )}
             </div>
           )}
         </div>
