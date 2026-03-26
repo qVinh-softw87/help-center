@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
+import { useLanguage } from '../i18n';
 import { helpCenterService } from '../services/helpCenterService';
 import { ArticleDetail as IArticleDetail, EHelpFeedbackType } from '../types';
 import { Icons } from '../components/Icons';
@@ -63,11 +64,12 @@ const BlockContentRenderer: React.FC<{ content: string }> = ({ content }) => {
     );
   } catch (e) {
     console.error("Error parsing content JSON", e);
-    return <div className="p-4 bg-red-50 text-red-600 rounded">Không thể hiển thị nội dung bài viết.</div>;
+    return <div className="p-4 bg-red-50 text-red-600 rounded">Unable to render article content.</div>;
   }
 };
 
 export const ArticleDetail: React.FC = () => {
+  const { language, t } = useLanguage();
   const { slug } = useParams();
   const [data, setData] = useState<{ article: IArticleDetail, hasAccess: boolean, relatedArticles: any[] } | null>(null);
   const [loading, setLoading] = useState(true);
@@ -77,12 +79,12 @@ export const ArticleDetail: React.FC = () => {
   useEffect(() => {
     if (slug) {
       setLoading(true);
-      helpCenterService.getArticleBySlug(slug)
+      helpCenterService.getArticleBySlug(slug, language)
         .then(res => setData(res))
         .catch(err => console.error(err))
         .finally(() => setLoading(false));
     }
-  }, [slug]);
+  }, [slug, language]);
 
   const handleFeedback = async (type: EHelpFeedbackType) => {
     if (data && !feedbackSent) {
@@ -92,7 +94,7 @@ export const ArticleDetail: React.FC = () => {
         setFeedbackSent(true);
       } catch (error) {
         setFeedbackError(
-          error instanceof Error ? error.message : 'Khong the gui feedback luc nay.',
+          error instanceof Error ? error.message : t('Không thể gửi feedback lúc này.', 'Unable to submit feedback right now.'),
         );
       }
     }
@@ -114,7 +116,7 @@ export const ArticleDetail: React.FC = () => {
 
   const publishedAtText = article.publishedAt
     ? new Date(article.publishedAt).toLocaleDateString('vi-VN')
-    : 'Chua xuat ban';
+    : t('Chưa xuất bản', 'Not published yet');
 
   return (
     <div className="bg-white min-h-screen pb-12">
@@ -122,7 +124,7 @@ export const ArticleDetail: React.FC = () => {
       <div className="bg-slate-50 border-b border-slate-200 py-8">
          <div className="max-w-5xl mx-auto px-4">
             <div className="flex items-center gap-2 text-sm text-slate-500 mb-4">
-              <Link to="/" className="hover:text-brand-600">Trung tâm trợ giúp</Link>
+              <Link to="/" className="hover:text-brand-600">{t('Trung tâm trợ giúp', 'Help Center')}</Link>
               <Icons.ChevronRight className="w-4 h-4" />
               {article.category ? (
                 <Link to={`/category/${article.categoryId}`} className="hover:text-brand-600">{article.category.name}</Link>
@@ -134,11 +136,11 @@ export const ArticleDetail: React.FC = () => {
             <div className="flex items-center gap-6 text-sm text-slate-500">
                <div className="flex items-center gap-2">
                  <div className="w-6 h-6 rounded-full bg-brand-100 text-brand-600 flex items-center justify-center font-bold text-xs">A</div>
-                 <span>Cập nhật: {publishedAtText}</span>
+                 <span>{t('Cập nhật', 'Updated')}: {publishedAtText}</span>
                </div>
                {article.requiredPackage && (
                  <span className="flex items-center gap-1 text-orange-600 font-medium bg-orange-50 px-2 py-0.5 rounded">
-                   <Icons.Lock className="w-3 h-3" /> Gói {article.requiredPackage}
+                   <Icons.Lock className="w-3 h-3" /> {t('Gói', 'Plan')} {article.requiredPackage}
                  </span>
                )}
             </div>
@@ -161,13 +163,13 @@ export const ArticleDetail: React.FC = () => {
               <div className="w-16 h-16 bg-slate-200 rounded-full flex items-center justify-center mx-auto mb-4 text-slate-400">
                 <Icons.Lock className="w-8 h-8" />
               </div>
-              <h3 className="text-xl font-bold text-slate-900 mb-2">Nội dung bị giới hạn</h3>
+              <h3 className="text-xl font-bold text-slate-900 mb-2">{t('Nội dung bị giới hạn', 'Restricted content')}</h3>
               <p className="text-slate-600 mb-6 max-w-md mx-auto">
-                Bài viết này dành riêng cho gói cước <strong>{article.requiredPackage}</strong>. 
-                Vui lòng nâng cấp gói cước của bạn để xem nội dung chi tiết.
+                {t('Bài viết này dành riêng cho gói cước', 'This article is available only for the')} <strong>{article.requiredPackage}</strong>.{' '}
+                {t('Vui lòng nâng cấp gói cước của bạn để xem nội dung chi tiết.', 'Please upgrade your plan to view the full content.')}
               </p>
               <button className="bg-brand-600 text-white px-6 py-2.5 rounded-lg font-medium hover:bg-brand-700 transition-colors">
-                Nâng cấp ngay
+                {t('Nâng cấp ngay', 'Upgrade now')}
               </button>
             </div>
           )}
@@ -177,8 +179,8 @@ export const ArticleDetail: React.FC = () => {
             <div className="mt-16 pt-8 border-t border-slate-200">
               <div className="bg-slate-50 rounded-xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
                 <div>
-                  <h4 className="font-semibold text-slate-900">Bài viết này có hữu ích không?</h4>
-                  <p className="text-sm text-slate-500">{article.helpfulCount} người thấy hữu ích</p>
+                  <h4 className="font-semibold text-slate-900">{t('Bài viết này có hữu ích không?', 'Was this article helpful?')}</h4>
+                  <p className="text-sm text-slate-500">{article.helpfulCount} {t('người thấy hữu ích', 'people found this helpful')}</p>
                 </div>
                 {!feedbackSent ? (
                   <div className="flex gap-3">
@@ -186,18 +188,18 @@ export const ArticleDetail: React.FC = () => {
                       onClick={() => handleFeedback(EHelpFeedbackType.HELPFUL)}
                       className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-lg hover:border-brand-500 hover:text-brand-600 transition-colors"
                     >
-                      <Icons.ThumbsUp className="w-4 h-4" /> Có
+                      <Icons.ThumbsUp className="w-4 h-4" /> {t('Có', 'Yes')}
                     </button>
                     <button 
                       onClick={() => handleFeedback(EHelpFeedbackType.NOT_HELPFUL)}
                       className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-lg hover:border-red-500 hover:text-red-600 transition-colors"
                     >
-                      <Icons.ThumbsDown className="w-4 h-4" /> Không
+                      <Icons.ThumbsDown className="w-4 h-4" /> {t('Không', 'No')}
                     </button>
                   </div>
                 ) : (
                   <div className="text-green-600 font-medium text-sm animate-fade-in">
-                    Cảm ơn phản hồi của bạn!
+                    {t('Cảm ơn phản hồi của bạn!', 'Thanks for your feedback!')}
                   </div>
                 )}
               </div>
@@ -212,7 +214,7 @@ export const ArticleDetail: React.FC = () => {
         <div className="hidden lg:block space-y-8">
           {relatedArticles.length > 0 && (
             <div>
-              <h4 className="font-bold text-slate-900 mb-4 pb-2 border-b border-slate-100">Bài viết liên quan</h4>
+              <h4 className="font-bold text-slate-900 mb-4 pb-2 border-b border-slate-100">{t('Bài viết liên quan', 'Related articles')}</h4>
               <div className="space-y-3">
                 {relatedArticles.map((rel: any) => (
                   <Link 
@@ -228,12 +230,12 @@ export const ArticleDetail: React.FC = () => {
           )}
           
           <div className="bg-brand-50 rounded-xl p-6">
-            <h4 className="font-bold text-brand-800 mb-2">Cần trợ giúp thêm?</h4>
+            <h4 className="font-bold text-brand-800 mb-2">{t('Cần trợ giúp thêm?', 'Need more help?')}</h4>
             <p className="text-sm text-brand-600 mb-4">
-              Không tìm thấy câu trả lời bạn cần? Liên hệ với đội hỗ trợ của chúng tôi.
+              {t('Không tìm thấy câu trả lời bạn cần? Liên hệ với đội hỗ trợ của chúng tôi.', 'Cannot find what you need? Contact our support team.')}
             </p>
             <button className="w-full py-2 bg-brand-600 text-white text-sm font-medium rounded-lg hover:bg-brand-700 transition-colors">
-              Gửi Ticket
+              {t('Gửi Ticket', 'Submit Ticket')}
             </button>
           </div>
         </div>

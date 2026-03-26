@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Icons } from './Icons';
-import { helpCenterService } from '../services/helpCenterService';
 import { useNavigate } from 'react-router-dom';
+import { useLanguage } from '../i18n';
+import { helpCenterService } from '../services/helpCenterService';
+import { Icons } from './Icons';
 
 interface SearchBarProps {
   className?: string;
@@ -14,6 +15,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
   placeholder = "Tìm kiếm bài viết, hướng dẫn...",
   variant = 'hero'
 }) => {
+  const { language, t } = useLanguage();
   const [query, setQuery] = useState('');
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -34,7 +36,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
     const fetchSuggestions = async () => {
       if (query.length > 2) {
         try {
-          const results = await helpCenterService.getSearchSuggestions(query);
+          const results = await helpCenterService.getSearchSuggestions(query, language);
           setSuggestions(results);
           setShowSuggestions(true);
         } catch (error) {
@@ -48,7 +50,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
 
     const timer = setTimeout(fetchSuggestions, 300);
     return () => clearTimeout(timer);
-  }, [query]);
+  }, [query, language]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -86,7 +88,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
              type="submit"
              className="absolute right-2 top-2 bottom-2 bg-brand-600 text-white px-6 rounded-md font-medium hover:bg-brand-700 transition-colors"
            >
-             Tìm kiếm
+             {t('Tìm kiếm', 'Search')}
            </button>
         )}
       </form>
@@ -94,7 +96,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
       {/* Suggestions Dropdown */}
       {showSuggestions && suggestions.length > 0 && (
         <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-lg shadow-xl border border-slate-100 overflow-hidden z-50">
-          <div className="p-2 text-xs font-semibold text-slate-400 uppercase tracking-wider">Gợi ý</div>
+          <div className="p-2 text-xs font-semibold text-slate-400 uppercase tracking-wider">{t('Gợi ý', 'Suggestions')}</div>
           <ul>
             {suggestions.map((item, index) => (
               <li 

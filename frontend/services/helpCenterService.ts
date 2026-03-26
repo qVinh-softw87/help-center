@@ -172,9 +172,9 @@ export const helpCenterService = {
     }
   },
 
-  getSearchSuggestions: async (query: string): Promise<string[]> => {
+  getSearchSuggestions: async (query: string, languageCode: string = 'vi'): Promise<string[]> => {
     try {
-      const res = await fetch(`${BASE_URL}/search/suggestions?query=${encodeURIComponent(query)}`, {
+      const res = await fetch(`${BASE_URL}/search/suggestions?query=${encodeURIComponent(query)}&languageCode=${languageCode}`, {
         headers: getHeaders()
       });
       if (!res.ok) throw new Error(res.statusText);

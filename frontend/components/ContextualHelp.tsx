@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Icons } from './Icons';
 import { useLocation, Link } from 'react-router-dom';
+import { useLanguage } from '../i18n';
 import { helpCenterService } from '../services/helpCenterService';
 import { ArticleSummary } from '../types';
+import { Icons } from './Icons';
 
 export const ContextualHelp: React.FC = () => {
+  const { language, t } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
   const [articles, setArticles] = useState<ArticleSummary[]>([]);
   const [loading, setLoading] = useState(false);
@@ -16,26 +18,26 @@ export const ContextualHelp: React.FC = () => {
   useEffect(() => {
     if (isOpen) {
       setLoading(true);
-      helpCenterService.getContextualHelp(currentContext)
+      helpCenterService.getContextualHelp(currentContext, language)
         .then(data => setArticles(data))
         .catch(err => console.error("Failed to load contextual help", err))
         .finally(() => setLoading(false));
     }
-  }, [isOpen, currentContext]);
+  }, [isOpen, currentContext, language]);
 
   return (
     <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end">
       {isOpen && (
         <div className="mb-4 w-80 bg-white rounded-xl shadow-2xl border border-slate-100 overflow-hidden animate-fade-in-up">
           <div className="bg-brand-600 px-4 py-3 flex justify-between items-center">
-            <h3 className="text-white font-medium text-sm">Trợ giúp nhanh</h3>
+            <h3 className="text-white font-medium text-sm">{t('Trợ giúp nhanh', 'Quick Help')}</h3>
             <button onClick={() => setIsOpen(false)} className="text-white/80 hover:text-white">
               <Icons.Close className="w-4 h-4" />
             </button>
           </div>
           <div className="p-4 max-h-80 overflow-y-auto">
             <p className="text-xs text-slate-500 mb-3">
-              Gợi ý cho màn hình: <code className="bg-slate-100 px-1 rounded">{currentContext}</code>
+              {t('Gợi ý cho màn hình:', 'Suggestions for screen:')} <code className="bg-slate-100 px-1 rounded">{currentContext}</code>
             </p>
             {loading ? (
               <div className="space-y-3">
@@ -57,13 +59,13 @@ export const ContextualHelp: React.FC = () => {
               </div>
             ) : (
               <div className="text-center py-4 text-slate-500 text-sm">
-                Không tìm thấy bài viết liên quan.
+                {t('Không tìm thấy bài viết liên quan.', 'No related articles found.')}
               </div>
             )}
           </div>
           <div className="p-3 bg-slate-50 border-t border-slate-100 text-center">
              <Link to="/" className="text-xs font-medium text-brand-600 hover:text-brand-700">
-               Đến trung tâm trợ giúp &rarr;
+               {t('Đến trung tâm trợ giúp', 'Go to help center')} &rarr;
              </Link>
           </div>
         </div>

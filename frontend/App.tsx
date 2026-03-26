@@ -6,6 +6,7 @@ import { HomePage } from './pages/HomePage';
 import { ArticleList } from './pages/ArticleList';
 import { ArticleDetail } from './pages/ArticleDetail';
 import { ContextualHelp } from './components/ContextualHelp';
+import { LanguageProvider } from './i18n';
 import { EHelpArticleType } from './types';
 
 const Layout: React.FC = () => {
@@ -23,19 +24,21 @@ const Layout: React.FC = () => {
 
 const App: React.FC = () => {
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<Layout />}>
-          <Route index element={<HomePage />} />
-          <Route path="category/:categoryId" element={<ArticleList />} />
-          <Route path="categories/user-manual" element={<ArticleList forcedType={EHelpArticleType.USER_MANUAL} />} />
-          <Route path="categories/business-playbook" element={<ArticleList forcedType={EHelpArticleType.BUSINESS_PLAYBOOK} />} />
-          <Route path="categories/api-docs" element={<ArticleList forcedType={EHelpArticleType.API_DOCS} />} />
-          <Route path="search" element={<ArticleList />} />
-          <Route path="article/:slug" element={<ArticleDetail />} />
-        </Route>
-      </Routes>
-    </Router>
+    <LanguageProvider>
+      <Router>
+        <Routes>
+          <Route path="/" element={<Layout />}>
+            <Route index element={<HomePage />} />
+            <Route path="category/:categoryId" element={<ArticleList />} />
+            <Route path="categories/user-manual" element={<ArticleList forcedType={EHelpArticleType.USER_MANUAL} />} />
+            <Route path="categories/business-playbook" element={<ArticleList forcedType={EHelpArticleType.BUSINESS_PLAYBOOK} />} />
+            <Route path="categories/api-docs" element={<ArticleList forcedType={EHelpArticleType.API_DOCS} />} />
+            <Route path="search" element={<ArticleList />} />
+            <Route path="article/:slug" element={<ArticleDetail />} />
+          </Route>
+        </Routes>
+      </Router>
+    </LanguageProvider>
   );
 };
 

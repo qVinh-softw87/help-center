@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useSearchParams, Link } from 'react-router-dom';
+import { useLanguage } from '../i18n';
 import { helpCenterService } from '../services/helpCenterService';
 import { ArticleSummary, EHelpArticleType } from '../types';
 import { Icons } from '../components/Icons';
@@ -9,6 +10,7 @@ interface ArticleListProps {
 }
 
 export const ArticleList: React.FC<ArticleListProps> = ({ forcedType }) => {
+  const { language, t } = useLanguage();
   const { categoryId } = useParams();
   const [searchParams] = useSearchParams();
   const query = searchParams.get('q');
@@ -19,7 +21,7 @@ export const ArticleList: React.FC<ArticleListProps> = ({ forcedType }) => {
 
   const formatPublishedAt = (publishedAt: string | null) => {
     if (!publishedAt) {
-      return 'Chua xuat ban';
+      return t('Chưa xuất bản', 'Not published');
     }
 
     return new Date(publishedAt).toLocaleDateString('vi-VN');
@@ -32,32 +34,30 @@ export const ArticleList: React.FC<ArticleListProps> = ({ forcedType }) => {
         if (forcedType) {
           switch(forcedType) {
             case EHelpArticleType.USER_MANUAL:
-              setTitle('Hướng dẫn sử dụng');
+              setTitle(t('Hướng dẫn sử dụng', 'User Manuals'));
               break;
             case EHelpArticleType.BUSINESS_PLAYBOOK:
-              setTitle('Giải pháp nghiệp vụ');
+              setTitle(t('Giải pháp nghiệp vụ', 'Business Playbooks'));
               break;
             case EHelpArticleType.API_DOCS:
-              setTitle('Tài liệu kỹ thuật');
+              setTitle(t('Tài liệu kỹ thuật', 'API Docs'));
               break;
             default:
-              setTitle('Danh sách bài viết');
+              setTitle(t('Danh sách bài viết', 'Articles'));
           }
-          const res = await helpCenterService.getArticles({ type: forcedType });
+          const res = await helpCenterService.getArticles({ type: forcedType, languageCode: language });
           setArticles(res.articles);
         } else if (query) {
-          setTitle(`Kết quả tìm kiếm cho: "${query}"`);
-          const res = await helpCenterService.getArticles({ searchQuery: query });
+          setTitle(`${t('Kết quả tìm kiếm cho', 'Search results for')}: "${query}"`);
+          const res = await helpCenterService.getArticles({ searchQuery: query, languageCode: language });
           setArticles(res.articles);
         } else if (categoryId) {
-           // Need to fetch category name separately ideally, simplified here
-          setTitle('Danh sách bài viết'); 
-          const res = await helpCenterService.getArticles({ categoryId: Number(categoryId) });
+          setTitle(t('Danh sách bài viết', 'Articles')); 
+          const res = await helpCenterService.getArticles({ categoryId: Number(categoryId), languageCode: language });
           setArticles(res.articles);
         } else {
-           // Default: All articles
-           setTitle('Tất cả bài viết');
-           const res = await helpCenterService.getArticles({});
+           setTitle(t('Tất cả bài viết', 'All Articles'));
+           const res = await helpCenterService.getArticles({ languageCode: language });
            setArticles(res.articles);
         }
       } catch (err) {
@@ -67,11 +67,11 @@ export const ArticleList: React.FC<ArticleListProps> = ({ forcedType }) => {
       }
     };
     fetchArticles();
-  }, [categoryId, query, forcedType]);
+  }, [categoryId, query, forcedType, language, t]);
 
   const getTypeBadge = (type: EHelpArticleType) => {
     switch (type) {
-      case EHelpArticleType.USER_MANUAL: return <span className="px-2 py-0.5 rounded text-xs font-semibold bg-blue-100 text-blue-700">Guide</span>;
+      case EHelpArticleType.USER_MANUAL: return <span className="px-2 py-0.5 rounded text-xs font-semibold bg-blue-100 text-blue-700">{t('Hướng dẫn', 'Guide')}</span>;
       case EHelpArticleType.BUSINESS_PLAYBOOK: return <span className="px-2 py-0.5 rounded text-xs font-semibold bg-green-100 text-green-700">Playbook</span>;
       case EHelpArticleType.API_DOCS: return <span className="px-2 py-0.5 rounded text-xs font-semibold bg-purple-100 text-purple-700">API</span>;
       default: return null;
@@ -83,7 +83,7 @@ export const ArticleList: React.FC<ArticleListProps> = ({ forcedType }) => {
       <div className="mb-8">
         {!forcedType && (
           <Link to="/" className="inline-flex items-center text-sm text-slate-500 hover:text-brand-600 mb-4 transition-colors">
-            <Icons.Back className="w-4 h-4 mr-1" /> Quay lại trang chủ
+            <Icons.Back className="w-4 h-4 mr-1" /> {t('Quay lại trang chủ', 'Back to home')}
           </Link>
         )}
         <h1 className="text-3xl font-bold text-slate-900">{title}</h1>
@@ -96,8 +96,8 @@ export const ArticleList: React.FC<ArticleListProps> = ({ forcedType }) => {
       ) : articles.length === 0 ? (
         <div className="text-center py-20 bg-slate-50 rounded-xl border border-slate-200 border-dashed">
           <Icons.Search className="w-12 h-12 text-slate-300 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-slate-900">Không tìm thấy kết quả nào</h3>
-          <p className="text-slate-500">Thử tìm kiếm với từ khóa khác hoặc quay lại trang chủ.</p>
+          <h3 className="text-lg font-medium text-slate-900">{t('Không tìm thấy kết quả nào', 'No results found')}</h3>
+          <p className="text-slate-500">{t('Thử tìm kiếm với từ khóa khác hoặc quay lại trang chủ.', 'Try another keyword or go back to the homepage.')}</p>
         </div>
       ) : (
         <div className="space-y-4">
@@ -128,7 +128,7 @@ export const ArticleList: React.FC<ArticleListProps> = ({ forcedType }) => {
               </p>
 
               <div className="flex items-center gap-4 text-xs text-slate-400">
-                 <span>{article.viewCount} lượt xem</span>
+                 <span>{article.viewCount} {t('lượt xem', 'views')}</span>
                  <span className="flex items-center gap-1"><Icons.ThumbsUp className="w-3 h-3" /> {article.helpfulCount}</span>
               </div>
             </Link>

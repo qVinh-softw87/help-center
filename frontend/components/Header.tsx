@@ -1,10 +1,11 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { useLanguage } from '../i18n';
 import { SearchBar } from './SearchBar';
-import { Icons } from './Icons';
 
 export const Header: React.FC = () => {
   const location = useLocation();
+  const { language, setLanguage, t } = useLanguage();
 
   const isActive = (path: string) => {
     return location.pathname === path ? 'text-brand-600 font-semibold' : 'text-slate-600 hover:text-brand-600';
@@ -23,19 +24,23 @@ export const Header: React.FC = () => {
           </Link>
 
           <nav className="hidden md:flex gap-6">
-            <Link to="/" className={`text-sm font-medium transition-colors ${isActive('/')}`}>Trang chủ</Link>
-            <Link to="/categories/user-manual" className={`text-sm font-medium transition-colors ${isActive('/categories/user-manual')}`}>Hướng dẫn sử dụng</Link>
-            <Link to="/categories/business-playbook" className={`text-sm font-medium transition-colors ${isActive('/categories/business-playbook')}`}>Giải pháp nghiệp vụ</Link>
-            <Link to="/categories/api-docs" className={`text-sm font-medium transition-colors ${isActive('/categories/api-docs')}`}>Tài liệu kỹ thuật</Link>
+            <Link to="/" className={`text-sm font-medium transition-colors ${isActive('/')}`}>{t('Trang chủ', 'Home')}</Link>
+            <Link to="/categories/user-manual" className={`text-sm font-medium transition-colors ${isActive('/categories/user-manual')}`}>{t('Hướng dẫn sử dụng', 'User Manuals')}</Link>
+            <Link to="/categories/business-playbook" className={`text-sm font-medium transition-colors ${isActive('/categories/business-playbook')}`}>{t('Giải pháp nghiệp vụ', 'Business Playbooks')}</Link>
+            <Link to="/categories/api-docs" className={`text-sm font-medium transition-colors ${isActive('/categories/api-docs')}`}>{t('Tài liệu kỹ thuật', 'API Docs')}</Link>
           </nav>
         </div>
 
         <div className="flex items-center gap-4">
           <div className="hidden md:block w-64">
-            <SearchBar variant="header" placeholder="Tìm kiếm nhanh..." />
+            <SearchBar variant="header" placeholder={t('Tìm kiếm nhanh...', 'Quick search...')} />
           </div>
           <div className="flex items-center gap-2">
-            <select className="bg-transparent text-sm font-medium text-slate-600 border-none outline-none cursor-pointer hover:text-brand-600">
+            <select
+              value={language}
+              onChange={(event) => setLanguage(event.target.value as 'vi' | 'en')}
+              className="bg-transparent text-sm font-medium text-slate-600 border-none outline-none cursor-pointer hover:text-brand-600"
+            >
               <option value="vi">Tiếng Việt</option>
               <option value="en">English</option>
             </select>
