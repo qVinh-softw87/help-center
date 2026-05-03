@@ -121,18 +121,3 @@ npm run dev:frontend
 
 Frontend se chay tai `http://localhost:3000` va goi API den backend qua `VITE_API_BASE_URL`.
 
-## Nhung phan quan trong de hoc
-
-- `backend/src/modules/help-center/help-center.controller.ts`: routing va request handling
-- `backend/src/modules/help-center/help-center.service.ts`: business logic
-- `backend/src/prisma/prisma.service.ts`: Prisma client + Nest lifecycle
-- `prisma/schema.prisma`: thiet ke co so du lieu
-- `backend/src/common/interceptors/response.interceptor.ts`: response format cho FE
-
-## Nhung gi repo nay da bo sung de hoan chinh hon
-
-- Prisma schema cho `Category`, `Article`, `Feedback`
-- seed du lieu mau
-- scripts backend/prisma trong `package.json`
-- backend tsconfig rieng
-- response wrapper khop frontend
