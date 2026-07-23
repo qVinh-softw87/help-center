@@ -57,8 +57,9 @@ export class HelpCenterService {
 
   private async invalidateCache(pattern: string): Promise<void> {
     try {
-      if (this.cacheManager.store && typeof (this.cacheManager.store as any).reset === 'function') {
-        await (this.cacheManager.store as any).reset();
+      const store = (this.cacheManager as any).store;
+      if (store && typeof store.reset === 'function') {
+        await store.reset();
       }
     } catch (e) {
       console.warn('Cache reset failed', e);
@@ -349,7 +350,7 @@ export class HelpCenterService {
   }
 
   // Admin methods for Articles
-  async createArticle(dto: CreateArticleDto, userRole: UserRole) {
+  async createArticle(dto: CreateArticleDto, userId: number, userRole: UserRole) {
     let slug = dto.slug || generateSlug(dto.title);
     if (!(await this.isSlugUnique(slug, dto.languageCode || "vi"))) {
       throw new ConflictException("Slug already exists");
@@ -359,6 +360,7 @@ export class HelpCenterService {
       data: {
         ...dto,
         slug,
+        authorId: userId,
         publishedAt:
           dto.status === HelpArticleStatus.PUBLISHED ? new Date() : null,
       },
@@ -367,7 +369,7 @@ export class HelpCenterService {
     return this.mapper.toArticleSummaryResponse(article);
   }
 
-  async updateArticle(id: number, dto: UpdateArticleDto, userRole: UserRole) {
+  async updateArticle(id: number, dto: UpdateArticleDto, userId: number, userRole: UserRole) {
     const existing = await this.prisma.article.findUnique({
       where: { id },
     });
@@ -436,7 +438,7 @@ export class HelpCenterService {
     });
     await this.invalidateCache("help-center:");
     return {
-      message: 'Feedback submitted successfully',
+      url: `/uploads/${filename}`,
     };
   }
 

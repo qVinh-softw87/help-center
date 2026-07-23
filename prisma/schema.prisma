@@ -3,8 +3,8 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
   directUrl = env("DIRECT_URL")
 }
 
@@ -33,17 +33,17 @@ enum UserRole {
 }
 
 model Category {
-  id          Int       @id @default(autoincrement())
-  name        String
-  slug        String
-  description String    @default("")
-  iconUrl     String?
-  sortOrder   Int       @default(0)
-  articleCount Int      @default(0)
-  languageCode String   @default("vi")
-  articles    Article[]
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  id           Int       @id @default(autoincrement())
+  name         String
+  slug         String
+  description  String    @default("")
+  iconUrl      String?
+  sortOrder    Int       @default(0)
+  articleCount Int       @default(0)
+  languageCode String    @default("vi")
+  articles     Article[]
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
 
   @@unique([slug, languageCode])
   @@index([languageCode, sortOrder])
@@ -73,6 +73,8 @@ model Article {
   languageCode     String            @default("vi")
   metadata         Json?
   category         Category          @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  authorId         Int?
+  author           User?             @relation(fields: [authorId], references: [id], onDelete: SetNull)
   feedbacks        Feedback[]
   createdAt        DateTime          @default(now())
   updatedAt        DateTime          @updatedAt
@@ -105,6 +107,7 @@ model User {
   role      UserRole   @default(STAFF)
   isActive  Boolean    @default(true)
   feedbacks Feedback[]
+  articles  Article[]
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
 }

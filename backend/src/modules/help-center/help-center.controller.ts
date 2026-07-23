@@ -58,7 +58,7 @@ const MAX_FILE_SIZE = (process.env.MAX_FILE_SIZE ? parseInt(process.env.MAX_FILE
 const multerConfig = {
   storage: diskStorage({
     destination: UPLOAD_DIR,
-    filename: (req, file, cb) => {
+    filename: (req: any, file: any, cb: any) => {
       const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
       const ext = extname(file.originalname);
       cb(null, `${file.fieldname}-${uniqueSuffix}${ext}`);
@@ -67,7 +67,7 @@ const multerConfig = {
   limits: {
     fileSize: MAX_FILE_SIZE,
   },
-  fileFilter: (req, file, cb) => {
+  fileFilter: (req: any, file: any, cb: any) => {
     const allowedMimeTypes = ["image/jpeg", "image/png", "image/webp"];
     if (allowedMimeTypes.includes(file.mimetype)) {
       cb(null, true);
@@ -77,9 +77,6 @@ const multerConfig = {
         false,
       );
     }
-  },
-  limits: {
-    fileSize: 5 * 1024 * 1024, // 5MB
   },
 };
 
@@ -185,9 +182,9 @@ export class HelpCenterController {
   @Post("admin/articles")
   createArticle(
     @Body() dto: CreateArticleDto,
-    @CurrentUser() user: { role: UserRole },
+    @CurrentUser() user: { id: number; role: UserRole },
   ) {
-    return this.helpCenterService.createArticle(dto, user.role);
+    return this.helpCenterService.createArticle(dto, user.id, user.role);
   }
 
   @ApiOperation({ summary: "Cap nhat bai viet" })
@@ -201,9 +198,9 @@ export class HelpCenterController {
   updateArticle(
     @Param("id", ParseIntPipe) id: number,
     @Body() dto: UpdateArticleDto,
-    @CurrentUser() user: { role: UserRole },
+    @CurrentUser() user: { id: number; role: UserRole },
   ) {
-    return this.helpCenterService.updateArticle(id, dto, user.role);
+    return this.helpCenterService.updateArticle(id, dto, user.id, user.role);
   }
 
   @ApiOperation({ summary: "Xoa bai viet (soft delete)" })

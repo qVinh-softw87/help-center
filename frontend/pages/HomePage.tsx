@@ -45,7 +45,7 @@ export const HomePage: React.FC = () => {
             <Link to="/search?q=tạo đơn hàng" className="text-brand-600 hover:underline">{t('Tạo đơn hàng', 'Create order')}</Link>
           </div>
         </div>
-      </div>
+      </motion.div>
 
       {/* Categories Grid */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 w-full">

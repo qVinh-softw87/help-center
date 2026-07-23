@@ -36,7 +36,8 @@ export const ChatbotWidget: React.FC = () => {
 
     try {
       // Send chat history and query to the backend
-      const res = await fetch('http://localhost:3000/api/help-center/chat', {
+      const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000").replace(/\/$/, "");
+      const res = await fetch(`${API_BASE_URL}/api/help-center/chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
