@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { useLanguage } from '../i18n';
 import { SearchBar } from '../components/SearchBar';
 import { Icons, getIconByName } from '../components/Icons';
@@ -19,32 +20,36 @@ export const HomePage: React.FC = () => {
   }, [language]);
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-white dark:bg-slate-900 transition-colors duration-200">
       {/* Hero Section */}
-      <div className="bg-gradient-to-b from-brand-50 to-white py-20 px-4">
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="bg-gradient-to-b from-brand-50 to-white dark:from-slate-800 dark:to-slate-900 py-20 px-4 transition-colors duration-200"
+      >
         <div className="max-w-3xl mx-auto text-center">
-          <h1 className="text-4xl font-bold text-slate-900 mb-6 tracking-tight">
+          <h1 className="text-4xl font-bold text-slate-900 dark:text-white mb-6 tracking-tight">
             {t('Chúng tôi có thể giúp gì cho bạn?', 'How can we help you?')}
           </h1>
-          <p className="text-lg text-slate-600 mb-10">
+          <p className="text-lg text-slate-600 dark:text-slate-300 mb-10">
             {t('Tìm kiếm hướng dẫn, câu trả lời và tài liệu kỹ thuật cho CataPos.', 'Search guides, answers, and technical documentation for CataPos.')}
           </p>
           <div className="shadow-xl shadow-brand-500/10 rounded-xl">
             <SearchBar placeholder={t('Tìm kiếm bài viết, hướng dẫn...', 'Search articles and guides...')} />
           </div>
           
-          <div className="mt-6 flex flex-wrap justify-center gap-4 text-sm text-slate-500">
+          <div className="mt-6 flex flex-wrap justify-center gap-4 text-sm text-slate-500 dark:text-slate-400">
             <span>{t('Phổ biến:', 'Popular:')}</span>
             <Link to="/search?q=kết nối máy in" className="text-brand-600 hover:underline">{t('Kết nối máy in', 'Printer setup')}</Link>
             <Link to="/search?q=tạo đơn hàng" className="text-brand-600 hover:underline">{t('Tạo đơn hàng', 'Create order')}</Link>
-            <Link to="/search?q=api" className="text-brand-600 hover:underline">API Key</Link>
           </div>
         </div>
       </div>
 
       {/* Categories Grid */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 w-full">
-        <h2 className="text-2xl font-bold text-slate-900 mb-8">{t('Khám phá theo chủ đề', 'Explore by topic')}</h2>
+        <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-8">{t('Khám phá theo chủ đề', 'Explore by topic')}</h2>
         
         {loading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -54,42 +59,48 @@ export const HomePage: React.FC = () => {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {categories.map((category) => (
-              <Link 
-                key={category.id} 
-                to={`/category/${category.id}`}
-                className="group p-6 bg-white rounded-xl border border-slate-200 hover:border-brand-300 hover:shadow-lg hover:shadow-brand-500/5 transition-all duration-300 flex flex-col"
+            {categories.map((category, index) => (
+              <motion.div
+                key={category.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
               >
-                <div className="w-12 h-12 bg-brand-50 rounded-lg flex items-center justify-center text-brand-600 mb-4 group-hover:bg-brand-600 group-hover:text-white transition-colors">
-                  {getIconByName(category.iconUrl || '')}
-                </div>
-                <h3 className="text-xl font-bold text-slate-900 mb-2 group-hover:text-brand-600 transition-colors">
+                <Link 
+                  to={`/category/${category.id}`}
+                  className="group p-6 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-brand-300 dark:hover:border-brand-500 hover:shadow-lg hover:shadow-brand-500/5 transition-all duration-300 flex flex-col h-full"
+                >
+                  <div className="w-12 h-12 bg-brand-50 dark:bg-slate-700 rounded-lg flex items-center justify-center text-brand-600 dark:text-brand-400 mb-4 group-hover:bg-brand-600 group-hover:text-white transition-colors">
+                    {getIconByName(category.iconUrl || '')}
+                  </div>
+                <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2 group-hover:text-brand-600 transition-colors">
                   {category.name}
-                </h3>
-                <p className="text-slate-500 text-sm mb-4 line-clamp-2 flex-grow">
-                  {category.description}
+                  </h3>
+                  <p className="text-slate-500 dark:text-slate-400 text-sm mb-4 line-clamp-2 flex-grow">
+                    {category.description}
                 </p>
-                <div className="flex items-center text-sm font-medium text-brand-600 mt-auto">
-                  {category.articleCount} {t('bài viết', 'articles')} <Icons.ChevronRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
-                </div>
-              </Link>
+                  <div className="flex items-center text-sm font-medium text-brand-600 dark:text-brand-400 mt-auto">
+                    {category.articleCount} {t('bài viết', 'articles')} <Icons.ChevronRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
+                  </div>
+                </Link>
+              </motion.div>
             ))}
           </div>
         )}
       </div>
 
       {/* Quick Links / Support */}
-      <div className="bg-slate-50 py-16 border-t border-slate-200">
+      <div className="bg-slate-50 dark:bg-slate-800/50 py-16 border-t border-slate-200 dark:border-slate-800 transition-colors duration-200">
         <div className="max-w-4xl mx-auto px-4 text-center">
-          <h2 className="text-2xl font-bold text-slate-900 mb-4">{t('Vẫn chưa tìm thấy câu trả lời?', 'Still cannot find your answer?')}</h2>
-          <p className="text-slate-600 mb-8">{t('Đội ngũ hỗ trợ của chúng tôi luôn sẵn sàng giúp đỡ bạn.', 'Our support team is always ready to help.')}</p>
+          <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">{t('Vẫn chưa tìm thấy câu trả lời?', 'Still cannot find your answer?')}</h2>
+          <p className="text-slate-600 dark:text-slate-300 mb-8">{t('Đội ngũ hỗ trợ của chúng tôi luôn sẵn sàng giúp đỡ bạn.', 'Our support team is always ready to help.')}</p>
           <div className="flex justify-center gap-4">
-            <button className="px-6 py-3 bg-white border border-slate-200 text-slate-700 font-medium rounded-lg hover:bg-slate-50 hover:border-slate-300 transition-colors">
+            <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="px-6 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 font-medium rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
               {t('Gửi yêu cầu hỗ trợ', 'Submit support request')}
-            </button>
-            <button className="px-6 py-3 bg-brand-600 text-white font-medium rounded-lg hover:bg-brand-700 transition-colors shadow-lg shadow-brand-500/20">
+            </motion.button>
+            <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="px-6 py-3 bg-brand-600 text-white font-medium rounded-lg hover:bg-brand-700 transition-colors shadow-lg shadow-brand-500/20">
               {t('Chat với chúng tôi', 'Chat with us')}
-            </button>
+            </motion.button>
           </div>
         </div>
       </div>

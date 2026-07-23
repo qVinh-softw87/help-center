@@ -5,6 +5,7 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 enum HelpArticleType {
@@ -75,6 +76,7 @@ model Article {
   feedbacks        Feedback[]
   createdAt        DateTime          @default(now())
   updatedAt        DateTime          @updatedAt
+  deletedAt        DateTime?
 
   @@unique([slug, languageCode])
   @@index([categoryId, languageCode, publishedAt])
@@ -101,6 +103,7 @@ model User {
   password  String
   name      String
   role      UserRole   @default(STAFF)
+  isActive  Boolean    @default(true)
   feedbacks Feedback[]
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt

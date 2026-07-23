@@ -9,12 +9,27 @@ import {
   ThumbsUp, 
   ThumbsDown, 
   ChevronRight, 
+  ChevronDown,
   FileText, 
   Lock,
   Menu,
   X,
   HelpCircle,
-  ArrowLeft
+  ArrowLeft,
+  User,
+  Plus,
+  Edit,
+  Trash2,
+  Upload,
+  Eye,
+  CheckCircle2,
+  XCircle,
+  MessageSquare,
+  Sparkles,
+  Send,
+  Sun,
+  Moon,
+  Clock
 } from 'lucide-react';
 
 export const Icons = {
@@ -27,12 +42,27 @@ export const Icons = {
   ThumbsUp: ThumbsUp,
   ThumbsDown: ThumbsDown,
   ChevronRight: ChevronRight,
+  ChevronDown: ChevronDown,
   FileText: FileText,
   Lock: Lock,
   Menu: Menu,
   Close: X,
   Help: HelpCircle,
-  Back: ArrowLeft
+  Back: ArrowLeft,
+  User: User,
+  Plus: Plus,
+  Edit: Edit,
+  Trash2: Trash2,
+  Upload: Upload,
+  Eye: Eye,
+  CheckCircle2: CheckCircle2,
+  XCircle: XCircle,
+  Chat: MessageSquare,
+  Sparkles: Sparkles,
+  Send: Send,
+  Sun: Sun,
+  Moon: Moon,
+  Clock: Clock
 };
 
 export const getIconByName = (name: string, className?: string) => {

@@ -4,7 +4,13 @@ import {
   ArticleResponse, 
   EHelpFeedbackType, 
   FeedbackResponse,
-  EHelpArticleType
+  EHelpArticleType,
+  AdminCategory,
+  AdminArticle,
+  CreateCategoryDto,
+  UpdateCategoryDto,
+  CreateArticleDto,
+  UpdateArticleDto
 } from '../types';
 
 const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8000').replace(/\/$/, '');
@@ -237,5 +243,114 @@ export const helpCenterService = {
         createdAt: new Date().toISOString()
       };
     }
+  },
+
+  // Admin methods
+  getAdminCategories: async (): Promise<AdminCategory[]> => {
+    try {
+      const res = await fetch(`${BASE_URL}/admin/categories`, { headers: getHeaders() });
+      if (!res.ok) throw new Error('Failed to get categories');
+      const json = await res.json();
+      return json.data;
+    } catch (error) {
+      console.error("Failed to get categories:", error);
+      throw error;
+    }
+  },
+
+  createCategory: async (data: CreateCategoryDto): Promise<AdminCategory> => {
+    const res = await fetch(`${BASE_URL}/admin/categories`, {
+      method: 'POST',
+      headers: getHeaders(),
+      body: JSON.stringify(data)
+    });
+    if (!res.ok) throw new Error('Failed to create category');
+    const json = await res.json();
+    return json.data;
+  },
+
+  updateCategory: async (id: number, data: UpdateCategoryDto): Promise<AdminCategory> => {
+    const res = await fetch(`${BASE_URL}/admin/categories/${id}`, {
+      method: 'PATCH',
+      headers: getHeaders(),
+      body: JSON.stringify(data)
+    });
+    if (!res.ok) throw new Error('Failed to update category');
+    const json = await res.json();
+    return json.data;
+  },
+
+  deleteCategory: async (id: number): Promise<void> => {
+    const res = await fetch(`${BASE_URL}/admin/categories/${id}`, {
+      method: 'DELETE',
+      headers: getHeaders()
+    });
+    if (!res.ok) throw new Error('Failed to delete category');
+  },
+
+  getAdminArticles: async (): Promise<AdminArticle[]> => {
+    try {
+      const res = await fetch(`${BASE_URL}/admin/articles`, { headers: getHeaders() });
+      if (!res.ok) throw new Error('Failed to get articles');
+      const json = await res.json();
+      return json.data;
+    } catch (error) {
+      console.error("Failed to get articles:", error);
+      throw error;
+    }
+  },
+
+  createArticle: async (data: CreateArticleDto): Promise<AdminArticle> => {
+    const res = await fetch(`${BASE_URL}/admin/articles`, {
+      method: 'POST',
+      headers: getHeaders(),
+      body: JSON.stringify(data)
+    });
+    if (!res.ok) throw new Error('Failed to create article');
+    const json = await res.json();
+    return json.data;
+  },
+
+  updateArticle: async (id: number, data: UpdateArticleDto): Promise<AdminArticle> => {
+    const res = await fetch(`${BASE_URL}/admin/articles/${id}`, {
+      method: 'PATCH',
+      headers: getHeaders(),
+      body: JSON.stringify(data)
+    });
+    if (!res.ok) throw new Error('Failed to update article');
+    const json = await res.json();
+    return json.data;
+  },
+
+  deleteArticle: async (id: number): Promise<void> => {
+    const res = await fetch(`${BASE_URL}/admin/articles/${id}`, {
+      method: 'DELETE',
+      headers: getHeaders()
+    });
+    if (!res.ok) throw new Error('Failed to delete article');
+  },
+
+  publishArticle: async (id: number, publish: boolean): Promise<AdminArticle> => {
+    const res = await fetch(`${BASE_URL}/admin/articles/${id}/publish`, {
+      method: 'PATCH',
+      headers: getHeaders(),
+      body: JSON.stringify({ publish })
+    });
+    if (!res.ok) throw new Error('Failed to publish/unpublish article');
+    const json = await res.json();
+    return json.data;
+  },
+
+  uploadArticleImage: async (id: number, file: File): Promise<AdminArticle> => {
+    const formData = new FormData();
+    formData.append('file', file);
+    const res = await fetch(`${BASE_URL}/admin/articles/${id}/upload-image`, {
+      method: 'POST',
+      headers: Object.fromEntries(Object.entries(getHeaders()).filter(([key]) => key !== 'Content-Type')), // Let fetch set multipart boundary
+      body: formData
+    });
+    if (!res.ok) throw new Error('Failed to upload image');
+    const json = await res.json();
+    return json.data;
   }
 };
