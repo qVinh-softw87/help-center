@@ -63,6 +63,17 @@ async function main() {
         articleCount: 1,
         languageCode: "vi",
       },
+    }),
+    prisma.category.create({
+      data: {
+        name: "Tài khoản & Phân quyền",
+        slug: "accounts",
+        description: "Tạo tài khoản, phân quyền nhân viên",
+        iconUrl: "users",
+        sortOrder: 4,
+        articleCount: 1,
+        languageCode: "vi",
+      },
     })
   ]);
 
@@ -96,6 +107,17 @@ async function main() {
         description: "Guide to installing printers and scanners",
         iconUrl: "monitor",
         sortOrder: 3,
+        articleCount: 1,
+        languageCode: "en",
+      },
+    }),
+    prisma.category.create({
+      data: {
+        name: "Accounts & Roles",
+        slug: "accounts-en",
+        description: "Manage staff accounts and permissions",
+        iconUrl: "users",
+        sortOrder: 4,
         articleCount: 1,
         languageCode: "en",
       },
@@ -151,6 +173,46 @@ Cắm cáp USB từ máy in vào máy tính thu ngân. Bật công tắc nguồn
 1. Vào mục **Cài đặt > Máy in**.
 2. Bấm **Thêm máy in**, hệ thống sẽ tự quét cổng USB.
 3. In thử một hoá đơn để kiểm tra.
+`;
+
+  const mdStaff = `
+# Hướng dẫn Tạo Tài Khoản Nhân Viên Mới
+
+Để đảm bảo an toàn và dễ dàng quản lý, bạn nên tạo cho mỗi nhân viên một tài khoản riêng biệt. Quy trình cực kỳ đơn giản:
+
+## Các bước thực hiện
+1. Đăng nhập vào trang Quản trị (Admin) bằng tài khoản chủ quán.
+2. Trên thanh menu bên trái, bấm vào mục **Quản lý Nhân Viên (Users)**.
+3. Bấm vào nút **+ Thêm Nhân Viên** ở góc phải màn hình.
+4. Một bảng thông tin sẽ hiện ra, bạn điền đầy đủ:
+   - **Tên nhân viên**
+   - **Email đăng nhập** (Dùng để đăng nhập vào máy POS)
+   - **Mật khẩu** (Nhân viên có thể tự đổi sau)
+5. Ở phần **Vai trò (Role)**, chọn quyền tương ứng:
+   - *Thu ngân (Staff):* Chỉ được tạo đơn hàng và thanh toán.
+   - *Quản trị viên (Admin):* Có toàn quyền như xem báo cáo, sửa giá.
+6. Bấm **Lưu lại**.
+
+Nhân viên giờ đây đã có thể dùng Email và Mật khẩu vừa tạo để đăng nhập vào máy POS.
+`;
+
+  const mdStaffEn = `
+# How to Create a New Staff Account
+
+To ensure security and easy management, you should create a separate account for each staff member.
+
+## Steps to create:
+1. Log in to the Admin Dashboard.
+2. On the left menu, click **User Management (Users)**.
+3. Click the **+ Add User** button on the top right.
+4. Fill in the required information:
+   - **Name**
+   - **Login Email**
+   - **Password**
+5. In the **Role** section, select the appropriate permissions:
+   - *Staff:* Can only create orders and process payments.
+   - *Admin:* Full access including reports and settings.
+6. Click **Save**.
 `;
 
   const articles = await prisma.article.createManyAndReturn({
@@ -273,6 +335,46 @@ Cắm cáp USB từ máy in vào máy tính thu ngân. Bật công tắc nguồn
         isPinned: false,
         authorId: adminUser.id,
         publishedAt: new Date("2025-02-01T10:00:00Z"),
+        languageCode: "en",
+      },
+      {
+        categoryId: categories[3].id, // Tai khoan
+        type: "USER_MANUAL",
+        status: "PUBLISHED",
+        title: "Hướng dẫn Tạo Tài Khoản Nhân Viên Mới",
+        slug: "tao-tai-khoan-nhan-vien",
+        summary: "Cách thêm nhân viên và phân quyền Thu ngân.",
+        content: mdStaff,
+        contentType: "markdown",
+        tags: ["nhân viên", "tài khoản", "phân quyền"],
+        contextPaths: ["/admin/users"],
+        viewCount: 450,
+        helpfulCount: 65,
+        notHelpfulCount: 1,
+        isFeatured: false,
+        isPinned: false,
+        authorId: adminUser.id,
+        publishedAt: new Date("2025-02-05T10:00:00Z"),
+        languageCode: "vi",
+      },
+      {
+        categoryId: enCategories[3].id,
+        type: "USER_MANUAL",
+        status: "PUBLISHED",
+        title: "How to Create a New Staff Account",
+        slug: "create-staff-account-en",
+        summary: "Guide to adding new users and assigning roles.",
+        content: mdStaffEn,
+        contentType: "markdown",
+        tags: ["staff", "account", "roles"],
+        contextPaths: ["/admin/users"],
+        viewCount: 320,
+        helpfulCount: 40,
+        notHelpfulCount: 0,
+        isFeatured: false,
+        isPinned: false,
+        authorId: adminUser.id,
+        publishedAt: new Date("2025-02-05T10:00:00Z"),
         languageCode: "en",
       }
     ],
