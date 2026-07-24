@@ -66,6 +66,42 @@ async function main() {
     })
   ]);
 
+  const enCategories = await prisma.$transaction([
+    prisma.category.create({
+      data: {
+        name: "Getting Started",
+        slug: "getting-started-en",
+        description: "Basic guides for new users",
+        iconUrl: "rocket",
+        sortOrder: 1,
+        articleCount: 1,
+        languageCode: "en",
+      },
+    }),
+    prisma.category.create({
+      data: {
+        name: "Order Management",
+        slug: "order-management-en",
+        description: "Order processing and shipping workflows",
+        iconUrl: "shopping-bag",
+        sortOrder: 2,
+        articleCount: 1,
+        languageCode: "en",
+      },
+    }),
+    prisma.category.create({
+      data: {
+        name: "Hardware Setup",
+        slug: "hardware-en",
+        description: "Guide to installing printers and scanners",
+        iconUrl: "monitor",
+        sortOrder: 3,
+        articleCount: 1,
+        languageCode: "en",
+      },
+    })
+  ]);
+
   const mdLogin = `
 # Hướng dẫn Đăng nhập và Khởi tạo Hệ thống
 
@@ -178,6 +214,66 @@ Cắm cáp USB từ máy in vào máy tính thu ngân. Bật công tắc nguồn
         authorId: adminUser.id,
         publishedAt: new Date("2025-02-01T10:00:00Z"),
         languageCode: "vi",
+      },
+      {
+        categoryId: enCategories[0].id,
+        type: "USER_MANUAL",
+        status: "PUBLISHED",
+        title: "Login and System Initialization Guide",
+        slug: "login-guide-en",
+        summary: "How to login for the first time.",
+        content: "# Login Guide\n\nWelcome to CataPos. This article guides you on how to log in.\n\n1. Open your browser.\n2. Access the admin URL.\n3. Enter your Email and Password.\n4. Click Login.",
+        contentType: "markdown",
+        tags: ["login", "basics"],
+        contextPaths: ["/login"],
+        viewCount: 500,
+        helpfulCount: 100,
+        notHelpfulCount: 0,
+        isFeatured: true,
+        isPinned: true,
+        authorId: adminUser.id,
+        publishedAt: new Date("2025-01-10T09:30:00Z"),
+        languageCode: "en",
+      },
+      {
+        categoryId: enCategories[1].id,
+        type: "BUSINESS_PLAYBOOK",
+        status: "PUBLISHED",
+        title: "Basic Order Processing",
+        slug: "order-processing-en",
+        summary: "How to create orders with barcodes.",
+        content: "# Basic Order Processing\n\n1. Select POS from menu.\n2. Scan barcode or type name.\n3. Select payment method.\n4. Click Pay.",
+        contentType: "markdown",
+        tags: ["orders", "sales"],
+        contextPaths: ["/sales"],
+        viewCount: 400,
+        helpfulCount: 80,
+        notHelpfulCount: 1,
+        isFeatured: true,
+        isPinned: false,
+        authorId: adminUser.id,
+        publishedAt: new Date("2025-01-15T14:20:00Z"),
+        languageCode: "en",
+      },
+      {
+        categoryId: enCategories[2].id,
+        type: "USER_MANUAL",
+        status: "PUBLISHED",
+        title: "Receipt Printer Setup Guide",
+        slug: "printer-setup-en",
+        summary: "How to install a USB printer.",
+        content: "# Printer Setup\n\n1. Plug in USB cable.\n2. Go to Settings > Printers.\n3. Click Add Printer and print a test page.",
+        contentType: "markdown",
+        tags: ["printer", "hardware"],
+        contextPaths: ["/settings"],
+        viewCount: 300,
+        helpfulCount: 50,
+        notHelpfulCount: 0,
+        isFeatured: false,
+        isPinned: false,
+        authorId: adminUser.id,
+        publishedAt: new Date("2025-02-01T10:00:00Z"),
+        languageCode: "en",
       }
     ],
   });
