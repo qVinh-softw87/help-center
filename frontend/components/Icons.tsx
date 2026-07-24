@@ -29,7 +29,10 @@ import {
   Send,
   Sun,
   Moon,
-  Clock
+  Clock,
+  Loader2,
+  Check,
+  Mail
 } from 'lucide-react';
 
 export const Icons = {
@@ -62,7 +65,11 @@ export const Icons = {
   Send: Send,
   Sun: Sun,
   Moon: Moon,
-  Clock: Clock
+  Clock: Clock,
+  Loader2: Loader2,
+  Check: Check,
+  Mail: Mail,
+  X: X,
 };
 
 export const getIconByName = (name: string, className?: string) => {
