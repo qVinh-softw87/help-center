@@ -8,9 +8,9 @@ export const AdminLayout = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen flex bg-slate-50">
+    <div className="min-h-screen flex bg-slate-50 dark:bg-slate-900">
       {/* Sidebar */}
-      <aside className="w-64 bg-slate-800 text-slate-200 flex flex-col">
+      <aside className="w-64 bg-slate-800 dark:bg-slate-950 text-slate-200 flex flex-col">
         <div className="p-6 border-b border-slate-700">
           <h1 className="text-xl font-bold">CataPos Admin</h1>
           <p className="text-xs text-slate-400">Help Center Manager</p>

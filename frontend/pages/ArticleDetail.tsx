@@ -119,9 +119,9 @@ export const ArticleDetail: React.FC = () => {
     : t('Chưa xuất bản', 'Not published yet');
 
   return (
-    <div className="bg-white min-h-screen pb-12">
+    <div className="bg-white dark:bg-slate-900 min-h-screen pb-12">
       {/* Breadcrumb / Header */}
-      <div className="bg-slate-50 border-b border-slate-200 py-8">
+      <div className="bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 py-8">
          <div className="max-w-5xl mx-auto px-4">
             <div className="flex items-center gap-2 text-sm text-slate-500 mb-4">
               <Link to="/" className="hover:text-brand-600">{t('Trung tâm trợ giúp', 'Help Center')}</Link>
@@ -132,7 +132,7 @@ export const ArticleDetail: React.FC = () => {
                 <span>Bài viết</span>
               )}
             </div>
-            <h1 className="text-3xl md:text-5xl font-bold text-slate-900 mb-4">{article.title}</h1>
+            <h1 className="text-3xl md:text-5xl font-bold text-slate-900 dark:text-slate-100 mb-4">{article.title}</h1>
             <div className="flex items-center gap-6 text-sm text-slate-500">
                <div className="flex items-center gap-2">
                  <div className="w-6 h-6 rounded-full bg-brand-100 text-brand-600 flex items-center justify-center font-bold text-xs">A</div>
@@ -159,11 +159,11 @@ export const ArticleDetail: React.FC = () => {
               )}
             </article>
           ) : (
-            <div className="bg-slate-50 border border-slate-200 rounded-xl p-8 text-center my-8">
+            <div className="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-8 text-center my-8">
               <div className="w-16 h-16 bg-slate-200 rounded-full flex items-center justify-center mx-auto mb-4 text-slate-400">
                 <Icons.Lock className="w-8 h-8" />
               </div>
-              <h3 className="text-xl font-bold text-slate-900 mb-2">{t('Nội dung bị giới hạn', 'Restricted content')}</h3>
+              <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100 mb-2">{t('Nội dung bị giới hạn', 'Restricted content')}</h3>
               <p className="text-slate-600 mb-6 max-w-md mx-auto">
                 {t('Bài viết này dành riêng cho gói cước', 'This article is available only for the')} <strong>{article.requiredPackage}</strong>.{' '}
                 {t('Vui lòng nâng cấp gói cước của bạn để xem nội dung chi tiết.', 'Please upgrade your plan to view the full content.')}
@@ -176,23 +176,23 @@ export const ArticleDetail: React.FC = () => {
 
           {/* Feedback Section */}
           {hasAccess && (
-            <div className="mt-16 pt-8 border-t border-slate-200">
-              <div className="bg-slate-50 rounded-xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="mt-16 pt-8 border-t border-slate-200 dark:border-slate-700">
+              <div className="bg-slate-50 dark:bg-slate-800 rounded-xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
                 <div>
-                  <h4 className="font-semibold text-slate-900">{t('Bài viết này có hữu ích không?', 'Was this article helpful?')}</h4>
+                  <h4 className="font-semibold text-slate-900 dark:text-slate-100">{t('Bài viết này có hữu ích không?', 'Was this article helpful?')}</h4>
                   <p className="text-sm text-slate-500">{article.helpfulCount} {t('người thấy hữu ích', 'people found this helpful')}</p>
                 </div>
                 {!feedbackSent ? (
                   <div className="flex gap-3">
                     <button 
                       onClick={() => handleFeedback(EHelpFeedbackType.HELPFUL)}
-                      className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-lg hover:border-brand-500 hover:text-brand-600 transition-colors"
+                      className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg hover:border-brand-500 hover:text-brand-600 transition-colors"
                     >
                       <Icons.ThumbsUp className="w-4 h-4" /> {t('Có', 'Yes')}
                     </button>
                     <button 
                       onClick={() => handleFeedback(EHelpFeedbackType.NOT_HELPFUL)}
-                      className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-lg hover:border-red-500 hover:text-red-600 transition-colors"
+                      className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg hover:border-red-500 hover:text-red-600 transition-colors"
                     >
                       <Icons.ThumbsDown className="w-4 h-4" /> {t('Không', 'No')}
                     </button>
@@ -214,7 +214,7 @@ export const ArticleDetail: React.FC = () => {
         <div className="hidden lg:block space-y-8">
           {relatedArticles.length > 0 && (
             <div>
-              <h4 className="font-bold text-slate-900 mb-4 pb-2 border-b border-slate-100">{t('Bài viết liên quan', 'Related articles')}</h4>
+              <h4 className="font-bold text-slate-900 dark:text-slate-100 mb-4 pb-2 border-b border-slate-100 dark:border-slate-800">{t('Bài viết liên quan', 'Related articles')}</h4>
               <div className="space-y-3">
                 {relatedArticles.map((rel: any) => (
                   <Link 
@@ -229,7 +229,7 @@ export const ArticleDetail: React.FC = () => {
             </div>
           )}
           
-          <div className="bg-brand-50 rounded-xl p-6">
+          <div className="bg-brand-50 dark:bg-brand-900/20 rounded-xl p-6">
             <h4 className="font-bold text-brand-800 mb-2">{t('Cần trợ giúp thêm?', 'Need more help?')}</h4>
             <p className="text-sm text-brand-600 mb-4">
               {t('Không tìm thấy câu trả lời bạn cần? Liên hệ với đội hỗ trợ của chúng tôi.', 'Cannot find what you need? Contact our support team.')}
