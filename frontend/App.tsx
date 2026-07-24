@@ -12,6 +12,15 @@ import { ArticleList } from "./pages/ArticleList";
 import { ArticleDetail } from "./pages/ArticleDetail";
 import { LoginPage } from "./pages/LoginPage";
 import { ContextualHelp } from "./components/ContextualHelp";
+import { Toaster } from "sonner";
+import { SignUpPage } from "./pages/auth/SignUpPage";
+import { SignInPage } from "./pages/auth/SignInPage";
+import { ForgotPasswordPage } from "./pages/auth/ForgotPasswordPage";
+import { ResetPasswordPage } from "./pages/auth/ResetPasswordPage";
+import { VerifyEmailPage } from "./pages/auth/VerifyEmailPage";
+import { SettingsLayout } from "./pages/settings/SettingsLayout";
+import { ProfilePage } from "./pages/settings/ProfilePage";
+import { SecurityPage } from "./pages/settings/SecurityPage";
 import { LanguageProvider } from "./i18n";
 import { EHelpArticleType } from "./types";
 import { RouteGuard } from "./components/RouteGuard";
@@ -43,6 +52,16 @@ const App: React.FC = () => {
       <Router>
         <Routes>
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/sign-in" element={<SignInPage />} />
+          <Route path="/sign-up" element={<SignUpPage />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
+          <Route path="/verify-email" element={<VerifyEmailPage />} />
+          <Route path="/settings" element={<SettingsLayout />}>
+            <Route index element={<ProfilePage />} />
+            <Route path="profile" element={<ProfilePage />} />
+            <Route path="security" element={<SecurityPage />} />
+          </Route>
           <Route path="/" element={<Layout />}>
             <Route index element={<HomePage />} />
             <Route path="category/:categoryId" element={<ArticleList />} />
@@ -70,6 +89,7 @@ const App: React.FC = () => {
           </Route>
         </Routes>
       </Router>
+      <Toaster position="top-right" richColors />
       </ThemeProvider>
     </LanguageProvider>
   );
