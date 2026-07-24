@@ -53,8 +53,16 @@ export const HomePage: React.FC = () => {
         
         {loading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[1,2,3,4].map(i => (
-              <div key={i} className="h-48 bg-slate-100 rounded-xl animate-pulse" />
+            {[1,2,3,4,5,6].map(i => (
+              <div key={i} className="p-6 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 h-full flex flex-col">
+                <div className="w-12 h-12 bg-slate-100 dark:bg-slate-700 rounded-lg animate-pulse mb-4" />
+                <div className="h-6 w-3/4 bg-slate-100 dark:bg-slate-700 rounded animate-pulse mb-4" />
+                <div className="space-y-2 mb-4 flex-grow">
+                  <div className="h-3 w-full bg-slate-100 dark:bg-slate-700 rounded animate-pulse" />
+                  <div className="h-3 w-5/6 bg-slate-100 dark:bg-slate-700 rounded animate-pulse" />
+                </div>
+                <div className="h-4 w-1/3 bg-slate-100 dark:bg-slate-700 rounded animate-pulse mt-auto" />
+              </div>
             ))}
           </div>
         ) : (
@@ -68,7 +76,7 @@ export const HomePage: React.FC = () => {
               >
                 <Link 
                   to={`/category/${category.id}`}
-                  className="group p-6 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-brand-300 dark:hover:border-brand-500 hover:shadow-lg hover:shadow-brand-500/5 transition-all duration-300 flex flex-col h-full"
+                  className="group p-6 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-brand-400 dark:hover:border-brand-500 hover:shadow-xl hover:shadow-brand-500/10 hover:-translate-y-1 transition-all duration-300 flex flex-col h-full"
                 >
                   <div className="w-12 h-12 bg-brand-50 dark:bg-slate-700 rounded-lg flex items-center justify-center text-brand-600 dark:text-brand-400 mb-4 group-hover:bg-brand-600 group-hover:text-white transition-colors">
                     {getIconByName(category.iconUrl || '')}
@@ -95,12 +103,12 @@ export const HomePage: React.FC = () => {
           <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">{t('Vẫn chưa tìm thấy câu trả lời?', 'Still cannot find your answer?')}</h2>
           <p className="text-slate-600 dark:text-slate-300 mb-8">{t('Đội ngũ hỗ trợ của chúng tôi luôn sẵn sàng giúp đỡ bạn.', 'Our support team is always ready to help.')}</p>
           <div className="flex justify-center gap-4">
-            <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="px-6 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 font-medium rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
+            <button className="px-6 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 font-medium rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 hover:-translate-y-0.5 hover:shadow-md transition-all duration-200">
               {t('Gửi yêu cầu hỗ trợ', 'Submit support request')}
-            </motion.button>
-            <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="px-6 py-3 bg-brand-600 text-white font-medium rounded-lg hover:bg-brand-700 transition-colors shadow-lg shadow-brand-500/20">
+            </button>
+            <button className="px-6 py-3 bg-brand-600 text-white font-medium rounded-lg hover:bg-brand-700 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-brand-500/30 transition-all duration-200">
               {t('Chat với chúng tôi', 'Chat with us')}
-            </motion.button>
+            </button>
           </div>
         </div>
       </div>

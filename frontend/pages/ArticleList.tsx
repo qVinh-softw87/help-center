@@ -86,18 +86,18 @@ export const ArticleList: React.FC<ArticleListProps> = ({ forcedType }) => {
             <Icons.Back className="w-4 h-4 mr-1" /> {t('Quay lại trang chủ', 'Back to home')}
           </Link>
         )}
-        <h1 className="text-3xl font-bold text-slate-900">{title}</h1>
+        <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100">{title}</h1>
       </div>
 
       {loading ? (
         <div className="space-y-4">
-           {[1,2,3,4].map(i => <div key={i} className="h-32 bg-slate-100 rounded-xl animate-pulse" />)}
+           {[1,2,3,4].map(i => <div key={i} className="h-32 bg-slate-100 dark:bg-slate-800 rounded-xl animate-pulse" />)}
         </div>
       ) : articles.length === 0 ? (
-        <div className="text-center py-20 bg-slate-50 rounded-xl border border-slate-200 border-dashed">
-          <Icons.Search className="w-12 h-12 text-slate-300 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-slate-900">{t('Không tìm thấy kết quả nào', 'No results found')}</h3>
-          <p className="text-slate-500">{t('Thử tìm kiếm với từ khóa khác hoặc quay lại trang chủ.', 'Try another keyword or go back to the homepage.')}</p>
+        <div className="text-center py-20 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700 border-dashed">
+          <Icons.Search className="w-12 h-12 text-slate-300 dark:text-slate-600 mx-auto mb-4" />
+          <h3 className="text-lg font-medium text-slate-900 dark:text-slate-100">{t('Không tìm thấy kết quả nào', 'No results found')}</h3>
+          <p className="text-slate-500 dark:text-slate-400">{t('Thử tìm kiếm với từ khóa khác hoặc quay lại trang chủ.', 'Try another keyword or go back to the homepage.')}</p>
         </div>
       ) : (
         <div className="space-y-4">
@@ -105,7 +105,7 @@ export const ArticleList: React.FC<ArticleListProps> = ({ forcedType }) => {
             <Link 
               key={article.id}
               to={`/article/${article.slug}`}
-              className="block bg-white p-6 rounded-xl border border-slate-200 hover:border-brand-400 hover:shadow-md transition-all group relative overflow-hidden"
+              className="block bg-white dark:bg-slate-800 p-6 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-brand-400 dark:hover:border-brand-500 hover:shadow-lg hover:shadow-brand-500/5 hover:-translate-y-1 transition-all duration-300 group relative overflow-hidden"
             >
               {article.requiredPackage && (
                  <div className="absolute top-0 right-0 bg-yellow-100 text-yellow-800 text-xs font-bold px-2 py-1 rounded-bl-lg flex items-center gap-1">
@@ -120,10 +120,10 @@ export const ArticleList: React.FC<ArticleListProps> = ({ forcedType }) => {
                 </div>
               </div>
 
-              <h3 className="text-xl font-bold text-slate-900 mb-2 group-hover:text-brand-600 transition-colors">
+              <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100 mb-2 group-hover:text-brand-600 dark:group-hover:text-brand-400 transition-colors">
                 {article.title}
               </h3>
-              <p className="text-slate-600 text-sm mb-4 line-clamp-2">
+              <p className="text-slate-600 dark:text-slate-400 text-sm mb-4 line-clamp-2">
                 {article.summary}
               </p>
 

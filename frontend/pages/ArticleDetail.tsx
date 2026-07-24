@@ -102,10 +102,10 @@ export const ArticleDetail: React.FC = () => {
 
   if (loading) return (
     <div className="max-w-5xl mx-auto px-4 py-12">
-      <div className="h-8 w-3/4 bg-slate-200 rounded animate-pulse mb-6" />
-      <div className="h-4 w-1/2 bg-slate-100 rounded animate-pulse mb-12" />
+      <div className="h-8 w-3/4 bg-slate-200 dark:bg-slate-700 rounded animate-pulse mb-6" />
+      <div className="h-4 w-1/2 bg-slate-100 dark:bg-slate-700/50 rounded animate-pulse mb-12" />
       <div className="space-y-4">
-        {[1,2,3,4,5].map(i => <div key={i} className="h-4 w-full bg-slate-100 rounded animate-pulse" />)}
+        {[1,2,3,4,5].map(i => <div key={i} className="h-4 w-full bg-slate-100 dark:bg-slate-700/50 rounded animate-pulse" />)}
       </div>
     </div>
   );
@@ -168,7 +168,7 @@ export const ArticleDetail: React.FC = () => {
                 {t('Bài viết này dành riêng cho gói cước', 'This article is available only for the')} <strong>{article.requiredPackage}</strong>.{' '}
                 {t('Vui lòng nâng cấp gói cước của bạn để xem nội dung chi tiết.', 'Please upgrade your plan to view the full content.')}
               </p>
-              <button className="bg-brand-600 text-white px-6 py-2.5 rounded-lg font-medium hover:bg-brand-700 transition-colors">
+              <button className="bg-brand-600 text-white px-6 py-2.5 rounded-lg font-medium hover:bg-brand-700 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-brand-500/30 transition-all duration-200">
                 {t('Nâng cấp ngay', 'Upgrade now')}
               </button>
             </div>
@@ -186,13 +186,13 @@ export const ArticleDetail: React.FC = () => {
                   <div className="flex gap-3">
                     <button 
                       onClick={() => handleFeedback(EHelpFeedbackType.HELPFUL)}
-                      className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg hover:border-brand-500 hover:text-brand-600 transition-colors"
+                      className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg hover:border-brand-500 hover:text-brand-600 hover:-translate-y-0.5 hover:shadow-md transition-all duration-200"
                     >
                       <Icons.ThumbsUp className="w-4 h-4" /> {t('Có', 'Yes')}
                     </button>
                     <button 
                       onClick={() => handleFeedback(EHelpFeedbackType.NOT_HELPFUL)}
-                      className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg hover:border-red-500 hover:text-red-600 transition-colors"
+                      className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg hover:border-red-500 hover:text-red-600 hover:-translate-y-0.5 hover:shadow-md transition-all duration-200"
                     >
                       <Icons.ThumbsDown className="w-4 h-4" /> {t('Không', 'No')}
                     </button>
@@ -234,7 +234,7 @@ export const ArticleDetail: React.FC = () => {
             <p className="text-sm text-brand-600 mb-4">
               {t('Không tìm thấy câu trả lời bạn cần? Liên hệ với đội hỗ trợ của chúng tôi.', 'Cannot find what you need? Contact our support team.')}
             </p>
-            <button className="w-full py-2 bg-brand-600 text-white text-sm font-medium rounded-lg hover:bg-brand-700 transition-colors">
+            <button className="w-full py-2 bg-brand-600 text-white text-sm font-medium rounded-lg hover:bg-brand-700 hover:-translate-y-0.5 hover:shadow-lg transition-all duration-200">
               {t('Gửi Ticket', 'Submit Ticket')}
             </button>
           </div>
