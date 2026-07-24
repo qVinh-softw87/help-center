@@ -104,17 +104,29 @@ Cần hỗ trợ thêm? Liên hệ [Support Team](mailto:support@catapos.com).
 
 export const helpCenterService = {
   getCategories: async (languageCode: string = 'vi'): Promise<Category[]> => {
-    try {
-      const res = await fetch(`${BASE_URL}/categories?languageCode=${languageCode}`, {
-        headers: getHeaders()
-      });
+    const cacheKey = `categories_${languageCode}`;
+    const cached = localStorage.getItem(cacheKey);
+    
+    const fetchPromise = fetch(`${BASE_URL}/categories?languageCode=${languageCode}`, {
+      headers: getHeaders()
+    }).then(async (res) => {
       if (!res.ok) throw new Error(res.statusText);
       const json = await res.json();
+      localStorage.setItem(cacheKey, JSON.stringify(json.data));
       return json.data;
-    } catch (error) {
+    }).catch((error) => {
       console.warn("API unavailable, falling back to mock data:", error);
+      if (cached) return JSON.parse(cached);
       return MOCK_CATEGORIES;
+    });
+
+    if (cached) {
+      // Fire and forget fetch to update cache for next time
+      fetchPromise.catch(() => {});
+      return JSON.parse(cached);
     }
+    
+    return fetchPromise;
   },
 
   getArticles: async (params: { 
@@ -125,9 +137,7 @@ export const helpCenterService = {
     contextPath?: string;
     languageCode?: string;
   }): Promise<{ articles: ArticleSummary[], total: number }> => {
-    try {
       const query = new URLSearchParams();
-      // Default to 'vi' if not provided
       query.append('languageCode', params.languageCode || 'vi');
       
       if (params.categoryId) query.append('categoryId', params.categoryId.toString());
@@ -136,32 +146,49 @@ export const helpCenterService = {
       if (params.page) query.append('page', params.page.toString());
       if (params.contextPath) query.append('contextPath', params.contextPath);
 
-      const res = await fetch(`${BASE_URL}/articles?${query.toString()}`, {
+      const cacheKey = `articles_${query.toString()}`;
+      const cached = localStorage.getItem(cacheKey);
+
+      const fetchPromise = fetch(`${BASE_URL}/articles?${query.toString()}`, {
         headers: getHeaders()
+      }).then(async (res) => {
+        if (!res.ok) throw new Error(res.statusText);
+        const json = await res.json();
+        localStorage.setItem(cacheKey, JSON.stringify(json.data));
+        return json.data;
+      }).catch((error) => {
+        console.warn("API unavailable, falling back to mock data:", error);
+        if (cached) return JSON.parse(cached);
+        let data = [...MOCK_ARTICLES];
+        if (params.categoryId) data = data.filter(a => a.categoryId === Number(params.categoryId));
+        if (params.searchQuery) data = data.filter(a => a.title.toLowerCase().includes(params.searchQuery!.toLowerCase()));
+        if (params.contextPath) data = data.filter(a => a.contextPaths?.some(p => params.contextPath!.includes(p)));
+        return { articles: data, total: data.length };
       });
-      if (!res.ok) throw new Error(res.statusText);
-      const json = await res.json();
-      return json.data;
-    } catch (error) {
-      console.warn("API unavailable, falling back to mock data:", error);
-      let data = [...MOCK_ARTICLES];
-      if (params.categoryId) data = data.filter(a => a.categoryId === Number(params.categoryId));
-      if (params.searchQuery) data = data.filter(a => a.title.toLowerCase().includes(params.searchQuery!.toLowerCase()));
-      if (params.contextPath) data = data.filter(a => a.contextPaths?.some(p => params.contextPath!.includes(p)));
-      return { articles: data, total: data.length };
-    }
+
+      if (cached) {
+        fetchPromise.catch(() => {});
+        return JSON.parse(cached);
+      }
+
+      return fetchPromise;
   },
 
   getArticleBySlug: async (slug: string, languageCode: string = 'vi'): Promise<ArticleResponse> => {
-    try {
-      const res = await fetch(`${BASE_URL}/articles/${slug}?languageCode=${languageCode}`, {
-        headers: getHeaders()
-      });
+    const cacheKey = `article_${slug}_${languageCode}`;
+    const cached = localStorage.getItem(cacheKey);
+
+    const fetchPromise = fetch(`${BASE_URL}/articles/${slug}?languageCode=${languageCode}`, {
+      headers: getHeaders()
+    }).then(async (res) => {
       if (!res.ok) throw new Error(res.statusText);
       const json = await res.json();
+      localStorage.setItem(cacheKey, JSON.stringify(json.data));
       return json.data;
-    } catch (error) {
+    }).catch((error) => {
       console.warn("API unavailable, falling back to mock data:", error);
+      if (cached) return JSON.parse(cached);
+      
       const mockArticle = MOCK_ARTICLES.find(a => a.slug === slug);
       if (mockArticle) {
         return {
@@ -175,7 +202,14 @@ export const helpCenterService = {
         };
       }
       return MOCK_ARTICLE_DETAIL;
+    });
+
+    if (cached) {
+      fetchPromise.catch(() => {});
+      return JSON.parse(cached);
     }
+
+    return fetchPromise;
   },
 
   getSearchSuggestions: async (query: string, languageCode: string = 'vi'): Promise<string[]> => {
