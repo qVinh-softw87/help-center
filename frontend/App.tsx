@@ -10,7 +10,6 @@ import { Footer } from "./components/Footer";
 import { HomePage } from "./pages/HomePage";
 import { ArticleList } from "./pages/ArticleList";
 import { ArticleDetail } from "./pages/ArticleDetail";
-import { LoginPage } from "./pages/LoginPage";
 import { ContextualHelp } from "./components/ContextualHelp";
 import { Toaster } from "sonner";
 import { SignUpPage } from "./pages/auth/SignUpPage";
@@ -51,7 +50,6 @@ const App: React.FC = () => {
       <ThemeProvider>
       <Router>
         <Routes>
-          <Route path="/login" element={<LoginPage />} />
           <Route path="/sign-in" element={<SignInPage />} />
           <Route path="/sign-up" element={<SignUpPage />} />
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />

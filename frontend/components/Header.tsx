@@ -154,7 +154,7 @@ export const Header: React.FC = () => {
             </div>
           ) : (
             <Link
-              to="/login"
+              to="/sign-in"
               className="text-sm font-medium text-brand-600 hover:text-brand-700 transition-colors"
             >
               {t("Đăng nhập", "Sign in")}
