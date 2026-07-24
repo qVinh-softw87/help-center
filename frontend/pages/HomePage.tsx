@@ -20,13 +20,13 @@ export const HomePage: React.FC = () => {
   }, [language]);
 
   return (
-    <div className="min-h-screen flex flex-col bg-white dark:bg-slate-900 transition-colors duration-200">
+    <div className="min-h-screen flex flex-col bg-white dark:bg-slate-900">
       {/* Hero Section */}
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="bg-gradient-to-b from-brand-50 to-white dark:from-slate-800 dark:to-slate-900 py-20 px-4 transition-colors duration-200"
+        className="bg-gradient-to-b from-brand-50 to-white dark:from-slate-800 dark:to-slate-900 py-20 px-4"
       >
         <div className="max-w-3xl mx-auto text-center">
           <h1 className="text-4xl font-bold text-slate-900 dark:text-white mb-6 tracking-tight">
@@ -90,7 +90,7 @@ export const HomePage: React.FC = () => {
       </div>
 
       {/* Quick Links / Support */}
-      <div className="bg-slate-50 dark:bg-slate-800/50 py-16 border-t border-slate-200 dark:border-slate-800 transition-colors duration-200">
+      <div className="bg-slate-50 dark:bg-slate-800/50 py-16 border-t border-slate-200 dark:border-slate-800">
         <div className="max-w-4xl mx-auto px-4 text-center">
           <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">{t('Vẫn chưa tìm thấy câu trả lời?', 'Still cannot find your answer?')}</h2>
           <p className="text-slate-600 dark:text-slate-300 mb-8">{t('Đội ngũ hỗ trợ của chúng tôi luôn sẵn sàng giúp đỡ bạn.', 'Our support team is always ready to help.')}</p>
