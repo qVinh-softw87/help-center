@@ -5,7 +5,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
 import { signInSchema, SignInValues } from '../../lib/validations/auth';
-import { authApi } from '../../lib/api/auth';
+import { useAuth } from '../../contexts/AuthContext';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
@@ -15,6 +15,8 @@ export const SignInForm: React.FC = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [globalError, setGlobalError] = useState<string | null>(null);
+
+  const { login } = useAuth();
 
   const {
     register,
@@ -33,12 +35,9 @@ export const SignInForm: React.FC = () => {
     setIsLoading(true);
     setGlobalError(null);
     try {
-      const res = await authApi.signIn(data);
-      if (res.token) {
-        localStorage.setItem("accessToken", res.token);
-      }
+      await login(data.email, data.password);
       toast.success("Đăng nhập thành công!");
-      navigate('/settings'); // For demo purposes, redirect to settings
+      navigate('/admin'); // Redirect to dashboard
     } catch (error) {
       if (error instanceof Error) {
         setGlobalError(error.message);
