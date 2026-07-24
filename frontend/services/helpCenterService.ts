@@ -114,10 +114,6 @@ export const helpCenterService = {
       const json = await res.json();
       localStorage.setItem(cacheKey, JSON.stringify(json.data));
       return json.data;
-    }).catch((error) => {
-      console.warn("API unavailable, falling back to mock data:", error);
-      if (cached) return JSON.parse(cached);
-      return MOCK_CATEGORIES;
     });
 
     if (cached) {
@@ -126,7 +122,12 @@ export const helpCenterService = {
       return JSON.parse(cached);
     }
     
-    return fetchPromise;
+    const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 1500));
+    return Promise.race([fetchPromise, timeoutPromise]).catch((error) => {
+      console.warn("API unavailable or timed out, falling back to mock data:", error);
+      fetchPromise.catch(() => {}); // Let fetch finish in background
+      return MOCK_CATEGORIES;
+    }) as Promise<Category[]>;
   },
 
   getArticles: async (params: { 
@@ -156,14 +157,6 @@ export const helpCenterService = {
         const json = await res.json();
         localStorage.setItem(cacheKey, JSON.stringify(json.data));
         return json.data;
-      }).catch((error) => {
-        console.warn("API unavailable, falling back to mock data:", error);
-        if (cached) return JSON.parse(cached);
-        let data = [...MOCK_ARTICLES];
-        if (params.categoryId) data = data.filter(a => a.categoryId === Number(params.categoryId));
-        if (params.searchQuery) data = data.filter(a => a.title.toLowerCase().includes(params.searchQuery!.toLowerCase()));
-        if (params.contextPath) data = data.filter(a => a.contextPaths?.some(p => params.contextPath!.includes(p)));
-        return { articles: data, total: data.length };
       });
 
       if (cached) {
@@ -171,7 +164,16 @@ export const helpCenterService = {
         return JSON.parse(cached);
       }
 
-      return fetchPromise;
+      const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 1500));
+      return Promise.race([fetchPromise, timeoutPromise]).catch((error) => {
+        console.warn("API unavailable or timed out, falling back to mock data:", error);
+        fetchPromise.catch(() => {}); // Let fetch finish in background
+        let data = [...MOCK_ARTICLES];
+        if (params.categoryId) data = data.filter(a => a.categoryId === Number(params.categoryId));
+        if (params.searchQuery) data = data.filter(a => a.title.toLowerCase().includes(params.searchQuery!.toLowerCase()));
+        if (params.contextPath) data = data.filter(a => a.contextPaths?.some(p => params.contextPath!.includes(p)));
+        return { articles: data, total: data.length };
+      }) as Promise<{ articles: ArticleSummary[], total: number }>;
   },
 
   getArticleBySlug: async (slug: string, languageCode: string = 'vi'): Promise<ArticleResponse> => {
@@ -185,10 +187,17 @@ export const helpCenterService = {
       const json = await res.json();
       localStorage.setItem(cacheKey, JSON.stringify(json.data));
       return json.data;
-    }).catch((error) => {
-      console.warn("API unavailable, falling back to mock data:", error);
-      if (cached) return JSON.parse(cached);
-      
+    });
+
+    if (cached) {
+      fetchPromise.catch(() => {});
+      return JSON.parse(cached);
+    }
+
+    const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 1500));
+    return Promise.race([fetchPromise, timeoutPromise]).catch((error) => {
+      console.warn("API unavailable or timed out, falling back to mock data:", error);
+      fetchPromise.catch(() => {}); // Let fetch finish in background
       const mockArticle = MOCK_ARTICLES.find(a => a.slug === slug);
       if (mockArticle) {
         return {
@@ -202,14 +211,7 @@ export const helpCenterService = {
         };
       }
       return MOCK_ARTICLE_DETAIL;
-    });
-
-    if (cached) {
-      fetchPromise.catch(() => {});
-      return JSON.parse(cached);
-    }
-
-    return fetchPromise;
+    }) as Promise<ArticleResponse>;
   },
 
   getSearchSuggestions: async (query: string, languageCode: string = 'vi'): Promise<string[]> => {
