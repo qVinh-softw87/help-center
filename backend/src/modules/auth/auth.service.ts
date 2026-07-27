@@ -192,7 +192,7 @@ export class AuthService {
     }
 
     const page = query.page ?? 1;
-    const limit = query.limit ?? 10;
+    const limit = Math.min(query.limit ?? 10, 100);
     const skip = (page - 1) * limit;
 
     const [users, total] = await this.prisma.$transaction([
@@ -214,7 +214,13 @@ export class AuthService {
       this.prisma.user.count({ where }),
     ]);
 
-    return { users, total };
+    return { 
+      users, 
+      total,
+      totalPages: Math.ceil(total / limit),
+      currentPage: page,
+      limit,
+    };
   }
 
   async getUserById(id: number): Promise<UserResponse> {

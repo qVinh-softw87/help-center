@@ -9,6 +9,14 @@ export interface HelpCenterCategoryResponse {
   languageCode: string;
 }
 
+export interface HelpCenterCategoryListResponse {
+  categories: HelpCenterCategoryResponse[];
+  total: number;
+  totalPages: number;
+  currentPage: number;
+  limit: number;
+}
+
 export interface HelpCenterArticleSummaryResponse {
   id: number;
   categoryId: number;
@@ -48,6 +56,9 @@ export interface HelpCenterArticleDetailResponse
 export interface HelpCenterArticleListResponse {
   articles: HelpCenterArticleSummaryResponse[];
   total: number;
+  totalPages: number;
+  currentPage: number;
+  limit: number;
 }
 
 export interface HelpCenterArticleDetailResultResponse {

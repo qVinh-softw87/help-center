@@ -22,6 +22,7 @@ import {
   HelpCenterArticleDetailResultResponse,
   HelpCenterArticleListResponse,
   HelpCenterCategoryResponse,
+  HelpCenterCategoryListResponse,
   HelpCenterFeedbackResponse,
 } from "./interfaces/help-center-response.interface";
 import { HelpCenterMapper } from "./mappers/help-center.mapper";
@@ -54,6 +55,48 @@ export class HelpCenterService {
     @Inject(CACHE_MANAGER)
     private readonly cacheManager: Cache,
   ) {}
+
+  private geminiFailureCount = 0;
+  private circuitBreakerTimeout = 0;
+
+  private async fetchGeminiWithRetry(url: string, options: any, maxRetries = 3, timeoutMs = 15000): Promise<any> {
+    const now = Date.now();
+    if (this.circuitBreakerTimeout > now) {
+      throw new Error("Circuit breaker open: Gemini API is temporarily disabled.");
+    }
+    if (this.circuitBreakerTimeout > 0 && this.circuitBreakerTimeout <= now) {
+      this.circuitBreakerTimeout = 0;
+      this.geminiFailureCount = 0;
+    }
+
+    for (let i = 0; i < maxRetries; i++) {
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+        
+        const response = await fetch(url, { ...options, signal: controller.signal });
+        clearTimeout(timeoutId);
+        
+        if (!response.ok) {
+           throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        this.geminiFailureCount = 0;
+        return await response.json();
+      } catch (error: any) {
+        console.error(`Gemini API attempt ${i + 1} failed:`, error.message);
+        if (i === maxRetries - 1) {
+          this.geminiFailureCount++;
+          if (this.geminiFailureCount >= 5) {
+            console.error("Gemini API circuit breaker tripped! Disabling for 1 minute.");
+            this.circuitBreakerTimeout = Date.now() + 60000;
+          }
+          throw error;
+        }
+        await new Promise(res => setTimeout(res, Math.pow(2, i) * 1000));
+      }
+    }
+  }
 
   private async invalidateCache(pattern: string): Promise<void> {
     try {
@@ -101,25 +144,44 @@ export class HelpCenterService {
 
   async getCategories(
     query: GetCategoriesDto,
-  ): Promise<HelpCenterCategoryResponse[]> {
-    const cacheKey = `help-center:categories:${query.languageCode || "vi"}`;
+  ): Promise<HelpCenterCategoryListResponse> {
+    const page = Number(query.page ?? 1);
+    const limit = Math.min(Number(query.limit ?? 10), 100);
+    const skip = (page - 1) * limit;
+
+    const cacheKey = `help-center:categories:${query.languageCode || "vi"}:page:${page}:limit:${limit}`;
     const cached = await this.cacheManager.get(cacheKey);
     if (cached) {
       console.log(`[Cache] HIT: ${cacheKey}`);
-      return cached as HelpCenterCategoryResponse[];
+      return cached as HelpCenterCategoryListResponse;
     }
     console.log(`[Cache] MISS: ${cacheKey}`);
-    const categories = await this.prisma.category.findMany({
-      where: {
-        languageCode: query.languageCode,
-      },
-      orderBy: {
-        sortOrder: "asc",
-      },
-    });
-    const result = categories.map((category) =>
-      this.mapper.toCategoryResponse(category),
-    );
+
+    const where = {
+      languageCode: query.languageCode,
+    };
+
+    const [categories, total] = await this.prisma.$transaction([
+      this.prisma.category.findMany({
+        where,
+        orderBy: {
+          sortOrder: "asc",
+        },
+        skip,
+        take: limit,
+      }),
+      this.prisma.category.count({ where }),
+    ]);
+
+    const result = {
+      categories: categories.map((category) =>
+        this.mapper.toCategoryResponse(category),
+      ),
+      total,
+      totalPages: Math.ceil(total / limit),
+      currentPage: page,
+      limit,
+    };
     await this.cacheManager.set(cacheKey, result, 10 * 60 * 1000); // 10 minutes
     return result;
   }
@@ -169,7 +231,7 @@ export class HelpCenterService {
     };
 
     const page = Number(query.page ?? 1);
-    const limit = Number(query.limit ?? 10);
+    const limit = Math.min(Number(query.limit ?? 10), 100);
 
     const start = performance.now();
     const [articles, total] = await this.prisma.$transaction([
@@ -191,6 +253,9 @@ export class HelpCenterService {
         this.mapper.toArticleSummaryResponse(article),
       ),
       total,
+      totalPages: Math.ceil(total / limit),
+      currentPage: page,
+      limit,
     };
     await this.cacheManager.set(cacheKey, result, 2 * 60 * 1000); // 2 minutes
     return result;
@@ -267,7 +332,7 @@ export class HelpCenterService {
       select: {
         title: true,
       },
-      take: query.limit ?? 5,
+      take: Math.min(query.limit ?? 5, 100),
     });
     const end = performance.now();
     console.log(`[Search] getSearchSuggestions query took ${(end - start).toFixed(2)}ms`);
@@ -297,7 +362,7 @@ export class HelpCenterService {
         },
       },
       orderBy: [{ isPinned: "desc" }, { publishedAt: "desc" }],
-      take: query.limit ?? 5,
+      take: Math.min(query.limit ?? 5, 100),
     });
     const result = articles.map((article) =>
       this.mapper.toArticleSummaryResponse(article),
@@ -496,15 +561,15 @@ CRITICAL INSTRUCTIONS:
 
         const prompt = `${systemInstruction}\n\nContext:\n${contextText}\n\nUser's Question: ${query}`;
         
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+        const data = await this.fetchGeminiWithRetry(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             contents: [{ parts: [{ text: prompt }] }]
           })
         });
-        const data = await response.json() as any;
-        if (data.candidates && data.candidates[0]?.content?.parts?.[0]?.text) {
+
+        if (data && data.candidates && data.candidates[0]?.content?.parts?.[0]?.text) {
           return { response: data.candidates[0].content.parts[0].text };
         }
       } catch (e) {

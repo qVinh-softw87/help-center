@@ -112,8 +112,8 @@ export const helpCenterService = {
     }).then(async (res) => {
       if (!res.ok) throw new Error(res.statusText);
       const json = await res.json();
-      localStorage.setItem(cacheKey, JSON.stringify(json.data));
-      return json.data;
+      localStorage.setItem(cacheKey, JSON.stringify(json.data.categories || json.data));
+      return json.data.categories || json.data;
     });
 
     if (cached) {
@@ -287,7 +287,7 @@ export const helpCenterService = {
       const res = await fetch(`${BASE_URL}/admin/categories`, { headers: getHeaders() });
       if (!res.ok) throw new Error('Failed to get categories');
       const json = await res.json();
-      return json.data;
+      return json.data.categories || json.data;
     } catch (error) {
       console.error("Failed to get categories:", error);
       throw error;
