@@ -3,6 +3,7 @@ import { CacheModule } from '@nestjs/cache-manager';
 import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { HelpCenterModule } from './modules/help-center/help-center.module';
+import { AiModule } from './modules/ai/ai.module';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
 
@@ -11,6 +12,7 @@ import { APP_GUARD } from '@nestjs/core';
     PrismaModule,
     AuthModule,
     HelpCenterModule,
+    AiModule,
     CacheModule.register({
       isGlobal: true,
       ttl: 5 * 60 * 1000, // default TTL 5 minutes
