@@ -86,6 +86,29 @@ export class AuthService {
     };
   }
 
+  async register(dto: CreateUserDto) {
+    const existingUser = await this.prisma.user.findUnique({
+      where: { email: dto.email },
+    });
+
+    if (existingUser) {
+      throw new ConflictException('User with this email already exists');
+    }
+
+    const hashedPassword = await hash(dto.password, 10);
+    await this.prisma.user.create({
+      data: {
+        email: dto.email,
+        name: dto.name,
+        password: hashedPassword,
+        role: UserRole.STAFF, // Default role for new signups
+      },
+    });
+
+    // Auto login after registration
+    return this.login({ email: dto.email, password: dto.password });
+  }
+
   async refreshTokens(refreshToken: string) {
     try {
       const payload = await this.jwtService.verifyAsync(refreshToken, {

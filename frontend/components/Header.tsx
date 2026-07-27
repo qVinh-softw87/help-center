@@ -23,7 +23,7 @@ export const Header: React.FC = () => {
   const handleLogout = async () => {
     setIsMenuOpen(false);
     await logout();
-    navigate("/");
+    navigate("/sign-in", { replace: true });
   };
 
   return (

@@ -53,7 +53,7 @@ export const AdminLayout = () => {
             </div>
           </div>
           <button
-            onClick={() => logout().then(() => navigate('/'))}
+            onClick={() => logout()}
             className="w-full flex items-center gap-3 px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-700 rounded-lg transition-colors"
           >
             <Icons.X className="w-4 h-4" />

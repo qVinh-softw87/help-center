@@ -5,7 +5,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
 import { signUpSchema, SignUpValues } from '../../lib/validations/auth';
-import { authApi } from '../../lib/api/auth';
+import { useAuth } from '../../contexts/AuthContext';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
@@ -13,8 +13,8 @@ import { PasswordStrengthMeter } from './PasswordStrengthMeter';
 import { Icons } from '../Icons';
 
 export const SignUpForm: React.FC = () => {
-  const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
+  const { register: authRegister } = useAuth();
 
   const {
     register,
@@ -37,9 +37,12 @@ export const SignUpForm: React.FC = () => {
   const onSubmit = async (data: SignUpValues) => {
     setIsLoading(true);
     try {
-      await authApi.signUp(data);
-      toast.success("Tạo tài khoản thành công!");
-      navigate(`/verify-email?email=${encodeURIComponent(data.email)}`);
+      await authRegister({
+        name: data.name,
+        email: data.email,
+        password: data.password
+      });
+      toast.success("Tạo tài khoản và đăng nhập thành công!");
     } catch (error) {
       if (error instanceof Error) {
         setError("email", { message: error.message });

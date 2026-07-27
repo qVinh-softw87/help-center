@@ -37,7 +37,6 @@ export const SignInForm: React.FC = () => {
     try {
       await login(data.email, data.password);
       toast.success("Đăng nhập thành công!");
-      navigate('/admin'); // Redirect to dashboard
     } catch (error) {
       if (error instanceof Error) {
         setGlobalError(error.message);

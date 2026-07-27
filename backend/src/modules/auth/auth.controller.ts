@@ -45,6 +45,12 @@ export class AuthController {
     return this.authService.login(dto);
   }
 
+  @ApiOperation({ summary: 'Dang ky tai khoan moi (tu dong login)' })
+  @Post('register')
+  register(@Body() dto: CreateUserDto) {
+    return this.authService.register(dto);
+  }
+
   @ApiOperation({ summary: 'Lam moi JWT access token' })
   @Post('refresh')
   refreshTokens(@Body('refreshToken') refreshToken: string) {

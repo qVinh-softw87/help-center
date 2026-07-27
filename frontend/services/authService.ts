@@ -63,6 +63,23 @@ export const authService = {
     const json = await res.json();
     return json.data;
   },
+  register: async (data: any): Promise<LoginResponse> => {
+    const res = await fetch(`${BASE_URL}/register`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) {
+      const errorData = await res
+        .json()
+        .catch(() => ({ message: "Đăng ký thất bại" }));
+      throw new Error(
+        errorData.message || `Đăng ký thất bại (${res.status})`,
+      );
+    }
+    const json = await res.json();
+    return json.data;
+  },
   logout: async (): Promise<void> => {
     authService.clearAuth();
   },
