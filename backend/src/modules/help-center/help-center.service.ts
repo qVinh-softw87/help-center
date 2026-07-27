@@ -60,6 +60,7 @@ export class HelpCenterService {
       const store = (this.cacheManager as any).store;
       if (store && typeof store.reset === 'function') {
         await store.reset();
+        console.log(`[Cache] INVALIDATED pattern: ${pattern}`);
       }
     } catch (e) {
       console.warn('Cache reset failed', e);
@@ -104,8 +105,10 @@ export class HelpCenterService {
     const cacheKey = `help-center:categories:${query.languageCode || "vi"}`;
     const cached = await this.cacheManager.get(cacheKey);
     if (cached) {
+      console.log(`[Cache] HIT: ${cacheKey}`);
       return cached as HelpCenterCategoryResponse[];
     }
+    console.log(`[Cache] MISS: ${cacheKey}`);
     const categories = await this.prisma.category.findMany({
       where: {
         languageCode: query.languageCode,
@@ -127,8 +130,10 @@ export class HelpCenterService {
     const cacheKey = `help-center:articles:${JSON.stringify(query)}`;
     const cached = await this.cacheManager.get(cacheKey);
     if (cached) {
+      console.log(`[Cache] HIT: ${cacheKey}`);
       return cached as HelpCenterArticleListResponse;
     }
+    console.log(`[Cache] MISS: ${cacheKey}`);
     const contextPathVariants = query.contextPath
       ? this.buildContextPathVariants(query.contextPath)
       : [];
@@ -143,14 +148,12 @@ export class HelpCenterService {
             OR: [
               {
                 title: {
-                  contains: query.searchQuery,
-                  mode: "insensitive" as const,
+                  search: query.searchQuery.split(' ').join(' & '),
                 },
               },
               {
                 summary: {
-                  contains: query.searchQuery,
-                  mode: "insensitive" as const,
+                  search: query.searchQuery.split(' ').join(' & '),
                 },
               },
             ],
@@ -168,6 +171,7 @@ export class HelpCenterService {
     const page = Number(query.page ?? 1);
     const limit = Number(query.limit ?? 10);
 
+    const start = performance.now();
     const [articles, total] = await this.prisma.$transaction([
       this.prisma.article.findMany({
         where,
@@ -177,6 +181,11 @@ export class HelpCenterService {
       }),
       this.prisma.article.count({ where }),
     ]);
+    const end = performance.now();
+    if (query.searchQuery) {
+      console.log(`[Search] getArticles query took ${(end - start).toFixed(2)}ms`);
+    }
+
     const result = {
       articles: articles.map((article) =>
         this.mapper.toArticleSummaryResponse(article),
@@ -194,8 +203,10 @@ export class HelpCenterService {
     const cacheKey = `help-center:article:${slug}:${query.languageCode || "vi"}`;
     const cached = await this.cacheManager.get(cacheKey);
     if (cached) {
+      console.log(`[Cache] HIT: ${cacheKey}`);
       return cached as HelpCenterArticleDetailResultResponse;
     }
+    console.log(`[Cache] MISS: ${cacheKey}`);
     const article = await this.prisma.article.findFirst({
       where: {
         slug,
@@ -240,15 +251,17 @@ export class HelpCenterService {
     const cacheKey = `help-center:search-suggestions:${query.query}:${query.languageCode || "vi"}`;
     const cached = await this.cacheManager.get(cacheKey);
     if (cached) {
+      console.log(`[Cache] HIT: ${cacheKey}`);
       return cached as string[];
     }
+    console.log(`[Cache] MISS: ${cacheKey}`);
+    const start = performance.now();
     const articles = await this.prisma.article.findMany({
       where: {
         languageCode: query.languageCode,
         deletedAt: null,
         title: {
-          contains: query.query,
-          mode: "insensitive",
+          search: query.query.split(' ').join(' & '),
         },
       },
       select: {
@@ -256,6 +269,8 @@ export class HelpCenterService {
       },
       take: query.limit ?? 5,
     });
+    const end = performance.now();
+    console.log(`[Search] getSearchSuggestions query took ${(end - start).toFixed(2)}ms`);
     const result = articles.map((article) => article.title);
     await this.cacheManager.set(cacheKey, result, 5 * 60 * 1000); // 5 minutes
     return result;
@@ -265,8 +280,10 @@ export class HelpCenterService {
     const cacheKey = `help-center:contextual-help:${query.contextPath}:${query.languageCode || "vi"}`;
     const cached = await this.cacheManager.get(cacheKey);
     if (cached) {
+      console.log(`[Cache] HIT: ${cacheKey}`);
       return cached as any;
     }
+    console.log(`[Cache] MISS: ${cacheKey}`);
     const contextPathVariants = this.buildContextPathVariants(
       query.contextPath,
     );
@@ -450,17 +467,20 @@ export class HelpCenterService {
     }
 
     // 1. Search for relevant articles
+    const start = performance.now();
     const articles = await this.prisma.article.findMany({
       where: {
         OR: [
-          { title: { contains: query, mode: 'insensitive' } },
-          { content: { contains: query, mode: 'insensitive' } },
+          { title: { search: query.split(' ').join(' & ') } },
+          { content: { search: query.split(' ').join(' & ') } },
         ],
         status: 'PUBLISHED',
       },
       take: 3,
       select: { title: true, content: true }
     });
+    const end = performance.now();
+    console.log(`[Search] chatWithAI query took ${(end - start).toFixed(2)}ms`);
 
     const contextText = articles.map(a => `Title: ${a.title}\nContent: ${a.content}`).join('\n\n');
     
