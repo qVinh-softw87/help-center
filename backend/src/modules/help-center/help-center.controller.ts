@@ -138,6 +138,15 @@ export class HelpCenterController {
   }
 
   // Admin endpoints
+  @ApiOperation({ summary: "Lay danh sach danh muc (Admin)" })
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN, UserRole.STAFF)
+  @Get("admin/categories")
+  getAdminCategories() {
+    return this.helpCenterService.getAdminCategories();
+  }
+
   @ApiOperation({ summary: "Tao danh muc moi" })
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, RolesGuard)
@@ -172,6 +181,15 @@ export class HelpCenterController {
   @Delete("admin/categories/:id")
   deleteCategory(@Param("id", ParseIntPipe) id: number) {
     return this.helpCenterService.deleteCategory(id);
+  }
+
+  @ApiOperation({ summary: "Lay danh sach bai viet (Admin)" })
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN, UserRole.STAFF)
+  @Get("admin/articles")
+  getAdminArticles() {
+    return this.helpCenterService.getAdminArticles();
   }
 
   @ApiOperation({ summary: "Tao bai viet moi" })

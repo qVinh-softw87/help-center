@@ -357,6 +357,25 @@ export class HelpCenterService {
     return this.mapper.toFeedbackResponse(feedback);
   }
 
+  // --- Admin Methods ---
+
+  async getAdminCategories() {
+    return this.prisma.category.findMany({
+      orderBy: { sortOrder: 'asc' },
+    });
+  }
+
+  async getAdminArticles() {
+    return this.prisma.article.findMany({
+      orderBy: [{ isPinned: 'desc' }, { createdAt: 'desc' }],
+      include: {
+        category: {
+          select: { name: true },
+        },
+      },
+    });
+  }
+
   // Admin methods for Categories
   async createCategory(dto: CreateCategoryDto) {
     const category = await this.prisma.category.create({
