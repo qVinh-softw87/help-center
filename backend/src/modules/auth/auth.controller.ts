@@ -10,6 +10,7 @@ import {
   Delete,
   Query,
   ParseIntPipe,
+  BadRequestException,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -42,6 +43,23 @@ export class AuthController {
   @Post('login')
   login(@Body() dto: LoginDto) {
     return this.authService.login(dto);
+  }
+
+  @ApiOperation({ summary: 'Lam moi JWT access token' })
+  @Post('refresh')
+  refreshTokens(@Body('refreshToken') refreshToken: string) {
+    if (!refreshToken) {
+      throw new BadRequestException('Refresh token is required');
+    }
+    return this.authService.refreshTokens(refreshToken);
+  }
+
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Dang xuat va xoa refresh token' })
+  @UseGuards(JwtAuthGuard)
+  @Post('logout')
+  logout(@CurrentUser() user: { id: number }) {
+    return this.authService.logout(user.id);
   }
 
   @ApiBearerAuth()

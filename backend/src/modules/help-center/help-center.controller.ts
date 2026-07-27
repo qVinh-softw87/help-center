@@ -14,6 +14,7 @@ import {
   UploadedFile,
   BadRequestException,
 } from "@nestjs/common";
+import { Throttle } from "@nestjs/throttler";
 import { FileInterceptor } from "@nestjs/platform-express";
 import {
   ApiBearerAuth,
@@ -267,6 +268,7 @@ export class HelpCenterController {
     );
   }
 
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
   @Post('chat')
   async chatWithAI(@Body() chatDto: import('./dto/chat.dto').ChatDto) {
     return this.helpCenterService.chatWithAI(chatDto.query, chatDto.history);

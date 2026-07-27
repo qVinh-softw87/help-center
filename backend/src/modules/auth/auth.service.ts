@@ -67,12 +67,85 @@ export class AuthService {
       sub: authUser.id,
       email: authUser.email,
       role: authUser.role,
+    }, { expiresIn: '15m' });
+
+    const refreshToken = await this.jwtService.signAsync({
+      sub: authUser.id,
+    }, { expiresIn: '7d' });
+
+    const hashedRefreshToken = await hash(refreshToken, 10);
+    await this.prisma.user.update({
+      where: { id: user.id },
+      data: { refreshToken: hashedRefreshToken },
     });
 
     return {
       accessToken,
+      refreshToken,
       user: authUser,
     };
+  }
+
+  async refreshTokens(refreshToken: string) {
+    try {
+      const payload = await this.jwtService.verifyAsync(refreshToken, {
+        secret: process.env.JWT_SECRET ?? 'dev-jwt-secret',
+      });
+
+      const user = await this.prisma.user.findUnique({
+        where: { id: payload.sub },
+      });
+
+      if (!user || !user.isActive || !user.refreshToken) {
+        throw new UnauthorizedException('Access Denied');
+      }
+
+      const isRefreshTokenValid = await compare(refreshToken, user.refreshToken);
+      if (!isRefreshTokenValid) {
+        throw new UnauthorizedException('Access Denied');
+      }
+
+      const authUser: AuthUser = {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        role: user.role,
+      };
+
+      const newAccessToken = await this.jwtService.signAsync({
+        sub: authUser.id,
+        email: authUser.email,
+        role: authUser.role,
+      }, { expiresIn: '15m' });
+
+      const newRefreshToken = await this.jwtService.signAsync({
+        sub: authUser.id,
+      }, { expiresIn: '7d' });
+
+      const hashedRefreshToken = await hash(newRefreshToken, 10);
+      await this.prisma.user.update({
+        where: { id: user.id },
+        data: { refreshToken: hashedRefreshToken },
+      });
+
+      return {
+        accessToken: newAccessToken,
+        refreshToken: newRefreshToken,
+      };
+    } catch {
+      throw new UnauthorizedException('Invalid refresh token');
+    }
+  }
+
+  async logout(userId: number) {
+    await this.prisma.user.updateMany({
+      where: {
+        id: userId,
+        refreshToken: { not: null },
+      },
+      data: { refreshToken: null },
+    });
+    return { success: true };
   }
 
   async verifyAccessToken(token: string): Promise<AuthUser> {
