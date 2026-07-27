@@ -8,7 +8,7 @@ export const UserManager: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
-  const [formData, setFormData] = useState<Partial<CreateUserDto>>({
+  const [formData, setFormData] = useState<Partial<CreateUserDto & { isActive?: boolean }>>({
     email: '',
     name: '',
     role: UserRole.STAFF,
